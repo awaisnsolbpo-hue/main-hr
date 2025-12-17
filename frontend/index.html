@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en" suppressHydrationWarning>
+  <head>
+    <meta charset="UTF-8" />
+    <!-- Enhanced viewport for mobile -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    
+    <!-- Prevent tap highlight on mobile -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <title>AI Hiring - Transform Your Hiring Process with Intelligent Recruitment</title>
+    <meta name="description" content="Intelligent AI-powered screening and interviewing that saves time, reduces bias, and helps you find the perfect fit faster. Automate candidate evaluation and get data-driven insights." />
+    <meta name="author" content="AI Hiring" />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <meta property="og:title" content="AI Hiring - Transform Your Hiring Process with Intelligent Recruitment" />
+    <meta property="og:description" content="Intelligent AI-powered screening and interviewing that saves time, reduces bias, and helps you find the perfect fit faster." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/og-image.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@aihiring" />
+    <meta name="twitter:image" content="/og-image.png" />
+    
+    <style>
+      /* Prevent zoom on input focus (iOS fix) */
+      input, textarea, select {
+        font-size: 16px !important;
+      }
+      
+      /* Disable text selection for better app feel */
+      body {
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+      
+      /* Allow text selection in specific elements */
+      input, textarea, [contenteditable] {
+        -webkit-user-select: text;
+        user-select: text;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

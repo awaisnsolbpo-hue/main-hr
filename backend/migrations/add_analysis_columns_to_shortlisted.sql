@@ -1,0 +1,12 @@
+-- Add analysis columns to Shortlisted_candidates table
+ALTER TABLE public.Shortlisted_candidates
+ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'shortlisted',
+ADD COLUMN IF NOT EXISTS ats_score NUMERIC DEFAULT 0,
+ADD COLUMN IF NOT EXISTS mcq_score NUMERIC DEFAULT 0,
+ADD COLUMN IF NOT EXISTS technical_score NUMERIC DEFAULT 0,
+ADD COLUMN IF NOT EXISTS interview_score NUMERIC DEFAULT 0,
+ADD COLUMN IF NOT EXISTS total_score NUMERIC DEFAULT 0,
+ADD COLUMN IF NOT EXISTS recommendation TEXT DEFAULT 'pending',
+ADD COLUMN IF NOT EXISTS confidence NUMERIC DEFAULT 0,
+ADD COLUMN IF NOT EXISTS hire_readiness TEXT DEFAULT 'not_ready',
+ADD COLUMN IF NOT EXISTS priority TEXT DEFAULT 'medium';
