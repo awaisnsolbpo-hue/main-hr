@@ -3,8 +3,9 @@ import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Video, Clock, User, ArrowRight } from "lucide-react";
+import { Calendar, Video, Clock, User, ArrowRight, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { MeetingDetailModal } from "./dashboard/MeetingDetailModal";
 
 interface ScheduledMeeting {
     id: string;
@@ -29,6 +30,8 @@ interface ScheduledMeeting {
 const ScheduledMeetingsCard = () => {
     const [meetings, setMeetings] = useState<ScheduledMeeting[]>([]);
     const [loading, setLoading] = useState(true);
+    const [selectedMeeting, setSelectedMeeting] = useState<ScheduledMeeting | null>(null);
+    const [detailModalOpen, setDetailModalOpen] = useState(false);
 
     useEffect(() => {
         fetchUpcomingMeetings();
@@ -269,16 +272,35 @@ const ScheduledMeetingsCard = () => {
 
                                 {/* Actions */}
                                 <div className="flex gap-2">
-                                    <Link to="/scheduled-meetings" className="flex-1">
-                                        <Button
-                                            variant="default"
-                                            size="sm"
-                                            className="w-full"
+                                    {meeting.zoom_link && (
+                                        <a
+                                            href={meeting.zoom_link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex-1"
                                         >
-                                            <Video className="h-4 w-4 mr-2" />
-                                            View Meeting Details
-                                        </Button>
-                                    </Link>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="w-full"
+                                            >
+                                                <Video className="h-4 w-4 mr-2" />
+                                                Join
+                                            </Button>
+                                        </a>
+                                    )}
+                                    <Button
+                                        variant="default"
+                                        size="sm"
+                                        className="flex-1"
+                                        onClick={() => {
+                                            setSelectedMeeting(meeting);
+                                            setDetailModalOpen(true);
+                                        }}
+                                    >
+                                        <Eye className="h-4 w-4 mr-2" />
+                                        View Details
+                                    </Button>
                                 </div>
                             </div>
                         ))}
@@ -293,6 +315,27 @@ const ScheduledMeetingsCard = () => {
                     </Link>
                 )}
             </CardContent>
+
+            <MeetingDetailModal
+                meeting={selectedMeeting ? {
+                    id: selectedMeeting.id,
+                    candidate_name: selectedMeeting.candidate_name,
+                    candidate_email: selectedMeeting.candidate_email,
+                    candidate_phone: selectedMeeting.candidate_phone,
+                    job_id: selectedMeeting.job_id,
+                    job_title: selectedMeeting.jobs?.title || null,
+                    meeting_date: selectedMeeting.meeting_date,
+                    meeting_duration: selectedMeeting.meeting_duration,
+                    meeting_link: selectedMeeting.zoom_link,
+                    meeting_status: selectedMeeting.meeting_status,
+                    instructions: selectedMeeting.meeting_instructions,
+                    ai_score: selectedMeeting.ai_score,
+                    cv_file_url: selectedMeeting.cv_file_url,
+                    created_at: selectedMeeting.created_at,
+                } : null}
+                open={detailModalOpen}
+                onOpenChange={setDetailModalOpen}
+            />
         </Card>
     );
 };

@@ -467,96 +467,98 @@ const ShortlistedCandidatesPage = () => {
         <Card className="shadow-elegant">
           <CardHeader>
             <div className="flex items-center justify-between flex-wrap gap-4">
-              <CardTitle className="flex items-center gap-2">
-                <span>Shortlisted Candidates</span>
-                <Badge variant="secondary">{candidates.length} Total</Badge>
-              </CardTitle>
-              
-              <div className="flex items-center gap-4 flex-wrap">
-                {/* Analysis Button */}
-                <Button
-                  onClick={() => handleAnalyzeAndShortlist()}
-                  disabled={isAnalyzing}
-                  className="flex items-center gap-2"
-                  variant="default"
-                >
-                  {isAnalyzing ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Analyzing...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="h-4 w-4" />
-                      Analyze & Shortlist All
-                    </>
-                  )}
-                </Button>
+              <div className="flex items-center gap-3">
+                <CardTitle className="flex items-center gap-2">
+                  <span>Shortlisted Candidates</span>
+                  <Badge variant="secondary">{candidates.length} Total</Badge>
+                </CardTitle>
                 
-                {/* Filter Buttons */}
-                <div className="flex items-center gap-2">
-                  <Filter className="h-4 w-4 text-muted-foreground" />
-                  <div className="flex gap-2 flex-wrap">
-                    <Button
-                      variant={filter === 'all' ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setFilter('all')}
-                      className="gap-2"
-                    >
-                      All
-                      <Badge variant="secondary" className="ml-1">{candidates.length}</Badge>
+                {/* Filter Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <Filter className="h-4 w-4" />
+                      {filter === 'all' && 'All'}
+                      {filter === 'shortlisted' && 'Shortlisted'}
+                      {filter === 'rejected' && 'Rejected'}
+                      {filter === 'hire' && 'Hire (≥50%)'}
+                      {filter === 'not-hire' && 'Not Hire (<50%)'}
                     </Button>
-                    <Button
-                      variant={filter === 'shortlisted' ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setFilter('shortlisted')}
-                      className="gap-2"
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-52">
+                    <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={() => setFilter('all')}
+                      className={filter === 'all' ? 'bg-accent' : ''}
                     >
-                      <CheckCircle2 className="h-3 w-3" />
-                      Shortlisted
-                      <Badge variant="secondary" className="ml-1 bg-green-100 text-green-800 border-green-200">
+                      <span className="flex-1">All</span>
+                      <Badge variant="secondary" className="ml-2">{candidates.length}</Badge>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => setFilter('shortlisted')}
+                      className={filter === 'shortlisted' ? 'bg-accent' : ''}
+                    >
+                      <CheckCircle2 className="h-4 w-4 mr-2 text-green-500" />
+                      <span className="flex-1">Shortlisted</span>
+                      <Badge className="ml-2 bg-green-500 text-white border-green-600">
                         {candidates.filter(c => c.status === 'shortlisted').length}
                       </Badge>
-                    </Button>
-                    <Button
-                      variant={filter === 'rejected' ? 'default' : 'outline'}
-                      size="sm"
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
                       onClick={() => setFilter('rejected')}
-                      className="gap-2"
+                      className={filter === 'rejected' ? 'bg-accent' : ''}
                     >
-                      <XCircle className="h-3 w-3" />
-                      Rejected
-                      <Badge variant="secondary" className="ml-1 bg-red-100 text-red-800 border-red-200">
+                      <XCircle className="h-4 w-4 mr-2 text-red-500" />
+                      <span className="flex-1">Rejected</span>
+                      <Badge className="ml-2 bg-red-500 text-white border-red-600">
                         {candidates.filter(c => c.status === 'rejected').length}
                       </Badge>
-                    </Button>
-                    <Button
-                      variant={filter === 'hire' ? 'default' : 'outline'}
-                      size="sm"
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
                       onClick={() => setFilter('hire')}
-                      className="gap-2"
+                      className={filter === 'hire' ? 'bg-accent' : ''}
                     >
-                      <Check className="h-4 w-4" />
-                      Hire (≥50%)
-                      <Badge variant="secondary" className="ml-1 bg-green-100 text-green-800 border-green-200">
+                      <Check className="h-4 w-4 mr-2 text-green-500" />
+                      <span className="flex-1">Hire (≥50%)</span>
+                      <Badge className="ml-2 bg-green-500 text-white border-green-600">
                         {hireCount}
                       </Badge>
-                    </Button>
-                    <Button
-                      variant={filter === 'not-hire' ? 'default' : 'outline'}
-                      size="sm"
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
                       onClick={() => setFilter('not-hire')}
-                      className="gap-2"
+                      className={filter === 'not-hire' ? 'bg-accent' : ''}
                     >
-                      <X className="h-4 w-4" />
-                      Not Hire (&lt;50%)
-                      <Badge variant="secondary" className="ml-1 bg-red-100 text-red-800 border-red-200">
+                      <X className="h-4 w-4 mr-2 text-red-500" />
+                      <span className="flex-1">Not Hire (&lt;50%)</span>
+                      <Badge className="ml-2 bg-red-500 text-white border-red-600">
                         {notHireCount}
                       </Badge>
-                    </Button>
-                  </div>
-                </div>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
+              
+              {/* Analysis Button - Right Side */}
+              <Button
+                onClick={() => handleAnalyzeAndShortlist()}
+                disabled={isAnalyzing}
+                className="flex items-center gap-2"
+                variant="default"
+              >
+                {isAnalyzing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Analyzing...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4" />
+                    Analyze & Shortlist All
+                  </>
+                )}
+              </Button>
             </div>
           </CardHeader>
           <CardContent>
@@ -582,11 +584,17 @@ const ShortlistedCandidatesPage = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Candidate</TableHead>
-                      <TableHead>Job</TableHead>
-                      <TableHead>Total Score</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
+                      <TableHead className="min-w-[180px]">Candidate</TableHead>
+                      <TableHead className="min-w-[180px]">Contact</TableHead>
+                      <TableHead className="min-w-[120px]">Job</TableHead>
+                      <TableHead className="min-w-[80px]">Total</TableHead>
+                      <TableHead className="min-w-[60px]">ATS</TableHead>
+                      <TableHead className="min-w-[60px]">MCQ</TableHead>
+                      <TableHead className="min-w-[60px]">Tech</TableHead>
+                      <TableHead className="min-w-[60px]">Interview</TableHead>
+                      <TableHead className="min-w-[80px]">Videos</TableHead>
+                      <TableHead className="min-w-[90px]">Status</TableHead>
+                      <TableHead className="min-w-[180px]">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -598,22 +606,40 @@ const ShortlistedCandidatesPage = () => {
                         <TableRow key={candidate.id}>
                           <TableCell>
                             <div className="flex items-center gap-3">
-                              <Avatar className="h-10 w-10">
-                                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-primary-foreground">
+                              <Avatar className="h-10 w-10 flex-shrink-0">
+                                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-primary-foreground font-semibold">
                                   {getInitials(candidate.name)}
                                 </AvatarFallback>
                               </Avatar>
-                              <div>
-                                <p className="font-semibold">{candidate.name}</p>
-                                <p className="text-xs text-muted-foreground">{candidate.email}</p>
+                              <div className="min-w-0">
+                                <p className="font-semibold truncate">{candidate.name}</p>
                               </div>
                             </div>
                           </TableCell>
                           <TableCell>
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2 text-sm">
+                                <Mail className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                                <a
+                                  href={`mailto:${candidate.email}`}
+                                  className="hover:text-primary truncate"
+                                >
+                                  {candidate.email}
+                                </a>
+                              </div>
+                              {candidate.phone && (
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <Phone className="h-3.5 w-3.5 flex-shrink-0" />
+                                  <span>{candidate.phone}</span>
+                                </div>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
                             {candidate.job_title ? (
-                              <div className="flex items-center gap-1 text-sm">
-                                <Briefcase className="h-3 w-3" />
-                                {candidate.job_title}
+                              <div className="flex items-center gap-2 text-sm">
+                                <Briefcase className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                                <span className="truncate">{candidate.job_title}</span>
                               </div>
                             ) : (
                               <span className="text-xs text-muted-foreground">-</span>
@@ -621,26 +647,71 @@ const ShortlistedCandidatesPage = () => {
                           </TableCell>
                           <TableCell>
                             {candidate.total_score !== null && candidate.total_score !== undefined ? (
-                              <div className="flex items-center gap-2">
-                                <span className="font-semibold text-lg">{candidate.total_score}/100</span>
-                                {candidate.priority && (
-                                  <Badge variant="outline" className="text-xs">
-                                    {candidate.priority}
-                                  </Badge>
-                                )}
+                              <div className="flex items-center gap-1">
+                                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                <span className="font-bold text-lg">{candidate.total_score}</span>
                               </div>
                             ) : score !== null ? (
                               <div className="flex items-center gap-1">
-                                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                                <span className="font-semibold">{score}%</span>
+                                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                <span className="font-bold text-lg">{score}</span>
                               </div>
                             ) : (
                               <span className="text-xs text-muted-foreground">-</span>
                             )}
                           </TableCell>
                           <TableCell>
+                            <span className={`font-semibold ${candidate.ats_score && candidate.ats_score >= 60 ? 'text-green-600' : candidate.ats_score && candidate.ats_score >= 40 ? 'text-yellow-600' : 'text-muted-foreground'}`}>
+                              {candidate.ats_score ? Number(candidate.ats_score).toFixed(0) : '-'}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <span className={`font-semibold ${candidate.mcq_score && candidate.mcq_score >= 60 ? 'text-green-600' : candidate.mcq_score && candidate.mcq_score >= 40 ? 'text-yellow-600' : 'text-muted-foreground'}`}>
+                              {candidate.mcq_score ? Number(candidate.mcq_score).toFixed(0) : '-'}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <span className={`font-semibold ${candidate.technical_score && candidate.technical_score >= 60 ? 'text-green-600' : candidate.technical_score && candidate.technical_score >= 40 ? 'text-yellow-600' : 'text-muted-foreground'}`}>
+                              {candidate.technical_score ? Number(candidate.technical_score).toFixed(0) : '-'}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <span className={`font-semibold ${candidate.interview_score && candidate.interview_score >= 60 ? 'text-green-600' : candidate.interview_score && candidate.interview_score >= 40 ? 'text-yellow-600' : 'text-muted-foreground'}`}>
+                              {candidate.interview_score ? Number(candidate.interview_score).toFixed(0) : '-'}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1">
+                              {(candidate.recording_url || candidate['Recording URL']) && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7"
+                                  onClick={() => window.open(candidate.recording_url || candidate['Recording URL'], '_blank')}
+                                  title="Interview Recording"
+                                >
+                                  <Video className="h-4 w-4 text-blue-500" />
+                                </Button>
+                              )}
+                              {(candidate.screen_recording_url || candidate['Screen recording']) && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7"
+                                  onClick={() => window.open(candidate.screen_recording_url || candidate['Screen recording'], '_blank')}
+                                  title="Screen Recording"
+                                >
+                                  <Video className="h-4 w-4 text-purple-500" />
+                                </Button>
+                              )}
+                              {!candidate.recording_url && !candidate['Recording URL'] && !candidate.screen_recording_url && !candidate['Screen recording'] && (
+                                <span className="text-xs text-muted-foreground">-</span>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
                             {candidate.status === 'shortlisted' ? (
-                              <Badge className="bg-green-100 text-green-800 border-green-200">
+                              <Badge variant="outline" className="bg-green-500 text-white border-green-600">
                                 <CheckCircle2 className="h-3 w-3 mr-1" />
                                 Shortlisted
                               </Badge>
@@ -650,7 +721,7 @@ const ShortlistedCandidatesPage = () => {
                                 Rejected
                               </Badge>
                             ) : (
-                              <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+                              <Badge variant="outline" className="bg-blue-500 text-white border-blue-600">
                                 Shortlisted
                               </Badge>
                             )}
@@ -672,37 +743,27 @@ const ShortlistedCandidatesPage = () => {
                                     <MoreVertical className="h-4 w-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-64">
-                                  <DropdownMenuLabel>Manage Candidate</DropdownMenuLabel>
-                                  <DropdownMenuItem onClick={() => setViewDetailsCandidateId(candidate.id)}>
-                                    <Eye className="mr-2 h-4 w-4" />
-                                    View Full Details
+                                <DropdownMenuContent align="end" className="w-48">
+                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  {candidate.cv_file_url && (
+                                    <DropdownMenuItem onClick={() => setCvViewerCandidate(candidate)}>
+                                      <Eye className="mr-2 h-4 w-4" />
+                                      View CV
+                                    </DropdownMenuItem>
+                                  )}
+                                  <DropdownMenuItem onClick={() => setEditCandidate(candidate)}>
+                                    <PenSquare className="mr-2 h-4 w-4" />
+                                    Edit
                                   </DropdownMenuItem>
-                                {candidate.cv_file_url ? (
-                                  <DropdownMenuItem onClick={() => setCvViewerCandidate(candidate)}>
-                                    <Eye className="mr-2 h-4 w-4" />
-                                    View CV
+                                  <DropdownMenuItem
+                                    className="text-destructive focus:text-destructive"
+                                    onClick={() => setDeleteCandidate(candidate)}
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Delete
                                   </DropdownMenuItem>
-                                ) : (
-                                  <DropdownMenuItem disabled>
-                                    <Eye className="mr-2 h-4 w-4" />
-                                    No CV Uploaded
-                                  </DropdownMenuItem>
-                                )}
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => setEditCandidate(candidate)}>
-                                  <PenSquare className="mr-2 h-4 w-4" />
-                                  Edit Candidate
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  className="text-destructive focus:text-destructive"
-                                  onClick={() => setDeleteCandidate(candidate)}
-                                >
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                  Delete Candidate
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             </div>
                           </TableCell>
                         </TableRow>

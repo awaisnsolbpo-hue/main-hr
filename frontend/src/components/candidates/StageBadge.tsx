@@ -12,31 +12,31 @@ interface StageBadgeProps {
 const stageConfig: Record<string, { label: string; color: string; icon: LucideIcon; variant: "default" | "secondary" | "outline" | "destructive" }> = {
   new: { 
     label: 'New', 
-    color: 'bg-blue-100 text-blue-800 border-blue-200 font-bold', 
+    color: 'bg-blue-500 text-white border-blue-600 font-bold', 
     icon: UserPlus,
     variant: 'outline',
   },
   mcq: { 
     label: 'MCQ Test', 
-    color: 'bg-yellow-100 text-yellow-800 border-yellow-200 font-bold', 
+    color: 'bg-yellow-500 text-white border-yellow-600 font-bold', 
     icon: ClipboardList,
     variant: 'outline',
   },
   technical: { 
     label: 'Technical', 
-    color: 'bg-primary/10 text-primary border-primary/30 dark:bg-primary/20 dark:text-primary dark:border-primary/40 font-bold', 
+    color: 'bg-primary text-white border-primary dark:bg-primary dark:text-white dark:border-primary font-bold', 
     icon: Code2,
     variant: 'outline',
   },
   final_interview: { 
     label: 'Final Interview', 
-    color: 'bg-orange-100 text-orange-800 border-orange-200 font-bold', 
+    color: 'bg-orange-500 text-white border-orange-600 font-bold', 
     icon: UserCheck,
     variant: 'outline',
   },
   shortlisted: { 
     label: 'Shortlisted', 
-    color: 'bg-green-100 text-green-800 border-green-200 font-bold', 
+    color: 'bg-green-500 text-white border-green-600 font-bold', 
     icon: Award,
     variant: 'default',
   },
@@ -48,7 +48,7 @@ const stageConfig: Record<string, { label: string; color: string; icon: LucideIc
   },
   rejected: { 
     label: 'Rejected', 
-    color: 'bg-red-100 text-red-800 border-red-200 font-bold', 
+    color: 'bg-red-500 text-white border-red-600 font-bold', 
     icon: XCircle,
     variant: 'destructive',
   },

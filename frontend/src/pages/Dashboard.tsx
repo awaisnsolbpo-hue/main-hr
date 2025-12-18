@@ -29,11 +29,17 @@ interface UpcomingMeeting {
     id: string;
     candidate_name: string;
     candidate_email: string;
+    candidate_phone?: string | null;
+    job_id?: string | null;
     job_title: string | null;
     meeting_date: string;
     meeting_duration: number;
     meeting_link: string;
+    meeting_status?: string | null;
+    instructions?: string | null;
     ai_score: number | null;
+    cv_file_url?: string | null;
+    created_at?: string;
 }
 
 interface Profile {

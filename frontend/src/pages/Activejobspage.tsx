@@ -188,7 +188,7 @@ const ActiveJobsPage = () => {
                         <TableCell>
                           <Badge
                             variant="default"
-                            className="bg-green-100 text-green-800 border-green-200"
+                            className="bg-green-500 text-white border-green-600"
                           >
                             Active
                           </Badge>

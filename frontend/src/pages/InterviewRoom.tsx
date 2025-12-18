@@ -1706,8 +1706,8 @@ ${formattedAIGeneratedQuestions}
                       <div className="flex-shrink-0">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                           entry.speaker === 'AI' 
-                            ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400' 
-                            : 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400'
+                            ? 'bg-blue-500 dark:bg-blue-600 text-white dark:text-white' 
+                            : 'bg-green-500 dark:bg-green-600 text-white dark:text-white'
                         }`}>
                           {entry.speaker === 'AI' ? (
                             <Sparkles className="h-4 w-4" />
@@ -1745,8 +1745,8 @@ ${formattedAIGeneratedQuestions}
                       <div className="flex-shrink-0">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                           partialTranscript.speaker === 'AI' 
-                            ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400' 
-                            : 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400'
+                            ? 'bg-blue-500 dark:bg-blue-600 text-white dark:text-white' 
+                            : 'bg-green-500 dark:bg-green-600 text-white dark:text-white'
                         }`}>
                           {partialTranscript.speaker === 'AI' ? (
                             <Sparkles className="h-4 w-4" />

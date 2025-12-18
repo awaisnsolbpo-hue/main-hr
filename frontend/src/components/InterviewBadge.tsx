@@ -8,15 +8,15 @@ const InterviewBadge = ({ status }: InterviewBadgeProps) => {
   const statusConfig = {
     scheduled: {
       label: "Interview Scheduled",
-      className: "bg-primary/10 text-primary border-primary/20",
+      className: "bg-primary text-white border-primary",
     },
     active: {
       label: "Interview In Progress",
-      className: "bg-accent/10 text-accent border-accent/20",
+      className: "bg-accent text-white border-accent",
     },
     completed: {
       label: "Interview Completed",
-      className: "bg-green-500/10 text-green-600 border-green-500/20",
+      className: "bg-green-500 text-white border-green-600",
     },
   };
 

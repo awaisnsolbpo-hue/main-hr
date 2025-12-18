@@ -20,7 +20,29 @@ import {
   Clock,
   Eye,
   Loader2,
+  Mail,
+  Briefcase,
+  Star,
+  Calendar,
+  MoreVertical,
+  PenSquare,
+  Trash2,
 } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import DashboardLayout from "@/components/DashboardLayout";
 import DashboardHeader from "@/components/DashboardHeader";
@@ -146,7 +168,7 @@ const MCQTests = () => {
   const getStatusBadge = (status: string, passed: boolean | null) => {
     if (status === "completed") {
       return passed ? (
-        <Badge className="bg-green-100 text-green-800 border-green-200">
+        <Badge variant="outline" className="bg-green-500 text-white border-green-600">
           <CheckCircle className="h-3 w-3 mr-1" />
           Passed
         </Badge>
@@ -156,7 +178,7 @@ const MCQTests = () => {
     }
     if (status === "in_progress") {
       return (
-        <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+        <Badge variant="outline" className="bg-yellow-500 text-white border-yellow-600">
           <Clock className="h-3 w-3 mr-1" />
           In Progress
         </Badge>
@@ -252,105 +274,154 @@ const MCQTests = () => {
             </Card>
 
             {/* Tests List */}
-            <div className="space-y-4">
-              {loading ? (
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="text-center py-8">
-                      <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
-                      <p className="text-muted-foreground">Loading MCQ tests...</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ) : filteredTests.length === 0 ? (
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="text-center py-12">
-                      <ClipboardList className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">No MCQ Tests Found</h3>
-                      <p className="text-muted-foreground">No tests match your current filters.</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ) : (
-                filteredTests.map((test) => (
-                  <Card key={test.id} className="hover:shadow-md transition-all">
-                    <CardContent className="pt-6">
-                      <div className="flex items-start gap-4">
-                        <Avatar className="h-12 w-12">
-                          <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
-                            {getInitials(test.candidate_name)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-4 mb-2">
-                            <div>
-                              <h3 className="font-semibold text-lg">{test.candidate_name}</h3>
-                              <p className="text-sm text-muted-foreground">{test.candidate_email}</p>
-                              {test.job_title && (
-                                <p className="text-sm text-muted-foreground mt-1">{test.job_title}</p>
+            <Card>
+              <CardHeader>
+                <CardTitle>MCQ Test Results</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {loading ? (
+                  <div className="text-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+                    <p className="text-muted-foreground">Loading MCQ tests...</p>
+                  </div>
+                ) : filteredTests.length === 0 ? (
+                  <div className="text-center py-12">
+                    <ClipboardList className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No MCQ Tests Found</h3>
+                    <p className="text-muted-foreground">No tests match your current filters.</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="min-w-[200px]">Candidate</TableHead>
+                          <TableHead className="min-w-[200px]">Email</TableHead>
+                          <TableHead className="min-w-[150px]">Job</TableHead>
+                          <TableHead className="min-w-[100px]">Score</TableHead>
+                          <TableHead className="min-w-[100px]">Questions</TableHead>
+                          <TableHead className="min-w-[100px]">Status</TableHead>
+                          <TableHead className="min-w-[120px]">Completed</TableHead>
+                          <TableHead className="min-w-[180px]">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredTests.map((test) => (
+                          <TableRow key={test.id}>
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                <Avatar className="h-10 w-10 flex-shrink-0">
+                                  <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground font-semibold">
+                                    {getInitials(test.candidate_name)}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div className="min-w-0">
+                                  <p className="font-semibold truncate">{test.candidate_name}</p>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2 text-sm">
+                                <Mail className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                                <a href={`mailto:${test.candidate_email}`} className="hover:text-primary truncate">
+                                  {test.candidate_email}
+                                </a>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              {test.job_title ? (
+                                <div className="flex items-center gap-2 text-sm">
+                                  <Briefcase className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                                  <span className="truncate">{test.job_title}</span>
+                                </div>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">-</span>
                               )}
-                            </div>
-                            {getStatusBadge(test.status, test.passed)}
-                          </div>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                            <div>
-                              <p className="text-xs text-muted-foreground">Score</p>
-                              <p className={`text-lg font-bold ${getScoreColor(test.percentage)}`}>
-                                {test.percentage !== null ? `${Number(test.percentage).toFixed(2)}%` : "--"}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-muted-foreground">Questions</p>
-                              <p className="text-lg font-semibold">
-                                {test.attempted_questions}/{test.total_questions}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-muted-foreground">Correct</p>
-                              <p className="text-lg font-semibold">{test.correct_answers}</p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-muted-foreground">Completed</p>
-                              <p className="text-sm">
-                                {test.completed_at
-                                  ? formatDistanceToNow(new Date(test.completed_at), { addSuffix: true })
-                                  : test.started_at
-                                  ? "In progress..."
-                                  : "Not started"}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2 mt-4">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setSelectedTest(test);
-                                setDetailModalOpen(true);
-                              }}
-                            >
-                              <Eye className="h-4 w-4 mr-2" />
-                              View Details
-                            </Button>
-                            {test.status === "in_progress" && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => navigate(`/mcq-tests/${test.id}/monitor`)}
-                              >
-                                <Clock className="h-4 w-4 mr-2" />
-                                Monitor
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-            </div>
+                            </TableCell>
+                            <TableCell>
+                              {test.percentage !== null ? (
+                                <div className="flex items-center gap-2">
+                                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                  <span className={`font-bold text-lg ${getScoreColor(test.percentage)}`}>
+                                    {Number(test.percentage).toFixed(1)}%
+                                  </span>
+                                </div>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">-</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <div className="text-sm">
+                                <span className="font-semibold">{test.correct_answers}</span>
+                                <span className="text-muted-foreground">/{test.total_questions}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              {getStatusBadge(test.status, test.passed)}
+                            </TableCell>
+                            <TableCell>
+                              {test.completed_at ? (
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
+                                  <span>{formatDistanceToNow(new Date(test.completed_at), { addSuffix: true })}</span>
+                                </div>
+                              ) : test.started_at ? (
+                                <Badge variant="outline" className="bg-yellow-500 text-white border-yellow-600">
+                                  <Clock className="h-3 w-3 mr-1" />
+                                  In Progress
+                                </Badge>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">Not started</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    setSelectedTest(test);
+                                    setDetailModalOpen(true);
+                                  }}
+                                  className="gap-2"
+                                >
+                                  <Eye className="h-4 w-4" />
+                                  View Details
+                                </Button>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon">
+                                      <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end" className="w-48">
+                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                    {test.screen_recording_url && (
+                                      <DropdownMenuItem onClick={() => window.open(test.screen_recording_url!, '_blank')}>
+                                        <Eye className="mr-2 h-4 w-4" />
+                                        View Recording
+                                      </DropdownMenuItem>
+                                    )}
+                                    <DropdownMenuItem>
+                                      <PenSquare className="mr-2 h-4 w-4" />
+                                      Edit
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="text-destructive focus:text-destructive">
+                                      <Trash2 className="mr-2 h-4 w-4" />
+                                      Delete
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
       </main>

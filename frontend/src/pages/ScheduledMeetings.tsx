@@ -182,11 +182,11 @@ export default function ScheduledMeetings() {
         const statusLower = status?.toLowerCase() || "scheduled";
 
         const statusConfig: Record<string, { label: string; className: string }> = {
-            scheduled: { label: "Scheduled", className: "bg-blue-100 text-blue-700 border-blue-200" },
-            pending: { label: "Pending", className: "bg-yellow-100 text-yellow-700 border-yellow-200" },
-            completed: { label: "Completed", className: "bg-green-100 text-green-700 border-green-200" },
-            cancelled: { label: "Cancelled", className: "bg-red-100 text-red-700 border-red-200" },
-            confirmed: { label: "Confirmed", className: "bg-emerald-100 text-emerald-700 border-emerald-200" },
+            scheduled: { label: "Scheduled", className: "bg-blue-500 text-white border-blue-600" },
+            pending: { label: "Pending", className: "bg-yellow-500 text-white border-yellow-600" },
+            completed: { label: "Completed", className: "bg-green-500 text-white border-green-600" },
+            cancelled: { label: "Cancelled", className: "bg-red-500 text-white border-red-600" },
+            confirmed: { label: "Confirmed", className: "bg-emerald-500 text-white border-emerald-600" },
         };
 
         const config = statusConfig[statusLower] || statusConfig.scheduled;
@@ -348,7 +348,7 @@ export default function ScheduledMeetings() {
                                                         </div>
                                                     </div>
                                                     {upcoming && (
-                                                        <Badge className="bg-green-100 text-green-700 border-green-200 whitespace-nowrap">
+                                                        <Badge variant="outline" className="bg-green-500 text-white border-green-600 whitespace-nowrap">
                                                             {getTimeUntilMeeting(meeting.meeting_date)}
                                                         </Badge>
                                                     )}

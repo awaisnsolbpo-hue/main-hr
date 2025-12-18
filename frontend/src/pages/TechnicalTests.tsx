@@ -21,7 +21,30 @@ import {
   Loader2,
   Play,
   FileCode,
+  Mail,
+  Briefcase,
+  Star,
+  Calendar,
+  MoreVertical,
+  PenSquare,
+  Trash2,
 } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import DashboardLayout from "@/components/DashboardLayout";
 import DashboardHeader from "@/components/DashboardHeader";
@@ -135,11 +158,20 @@ const TechnicalTests = () => {
     }
   };
 
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   const getStatusBadge = (status: string, recommendation: string | null) => {
     if (status === "completed") {
       if (recommendation?.toLowerCase().includes("hire") || recommendation?.toLowerCase().includes("strong")) {
         return (
-          <Badge className="bg-green-100 text-green-800 border-green-200">
+          <Badge variant="outline" className="bg-green-500 text-white border-green-600">
             <CheckCircle className="h-3 w-3 mr-1" />
             Recommended
           </Badge>
@@ -149,13 +181,20 @@ const TechnicalTests = () => {
     }
     if (status === "in_progress") {
       return (
-        <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+        <Badge variant="outline" className="bg-yellow-500 text-white border-yellow-600">
           <Clock className="h-3 w-3 mr-1" />
           In Progress
         </Badge>
       );
     }
     return <Badge variant="outline">Scheduled</Badge>;
+  };
+
+  const getScoreColor = (score: number | null) => {
+    if (!score) return "text-muted-foreground";
+    if (score >= 80) return "text-green-600";
+    if (score >= 60) return "text-yellow-600";
+    return "text-red-600";
   };
 
   const totalTests = tests.length;
@@ -229,119 +268,154 @@ const TechnicalTests = () => {
             </Card>
 
             {/* Tests List */}
-            <div className="space-y-4">
-              {loading ? (
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="text-center py-8">
-                      <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
-                      <p className="text-muted-foreground">Loading technical tests...</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ) : filteredTests.length === 0 ? (
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="text-center py-12">
-                      <Code2 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">No Technical Tests Found</h3>
-                      <p className="text-muted-foreground">No tests match your current filters.</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ) : (
-                filteredTests.map((test) => (
-                  <Card key={test.id} className="hover:shadow-md transition-all">
-                    <CardContent className="pt-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="p-3 rounded-lg bg-gradient-to-br from-primary to-primary/80">
-                            <Code2 className="h-6 w-6 text-white" />
-                          </div>
-                          <div>
-                            <h3 className="font-semibold text-lg">{test.task_title}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              {test.candidate_name} • {test.job_title || "No job"}
-                            </p>
-                          </div>
-                        </div>
-                        {getStatusBadge(test.status, test.recommendation)}
-                      </div>
-
-                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                        {test.task_description}
-                      </p>
-
-                      {test.status === "completed" && test.overall_score !== null && (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                          <div>
-                            <ScoreDisplay
-                              label="Overall"
-                              score={test.overall_score}
-                              size="sm"
-                              showBar={true}
-                            />
-                          </div>
-                          {test.code_quality_score !== null && (
-                            <div>
-                              <ScoreDisplay
-                                label="Code Quality"
-                                score={test.code_quality_score}
-                                size="sm"
-                                showBar={true}
-                              />
-                            </div>
-                          )}
-                          {test.correctness_score !== null && (
-                            <div>
-                              <ScoreDisplay
-                                label="Correctness"
-                                score={test.correctness_score}
-                                size="sm"
-                                showBar={true}
-                              />
-                            </div>
-                          )}
-                          {test.approach_score !== null && (
-                            <div>
-                              <ScoreDisplay
-                                label="Approach"
-                                score={test.approach_score}
-                                size="sm"
-                                showBar={true}
-                              />
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      <div className="flex items-center justify-between pt-4 border-t">
-                        <div className="text-sm text-muted-foreground">
-                          {test.completed_at
-                            ? `Completed ${formatDistanceToNow(new Date(test.completed_at), { addSuffix: true })}`
-                            : test.started_at
-                            ? "In progress..."
-                            : "Scheduled"}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setSelectedTest(test);
-                              setDetailModalOpen(true);
-                            }}
-                          >
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Details
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-            </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Technical Assessment Results</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {loading ? (
+                  <div className="text-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+                    <p className="text-muted-foreground">Loading technical tests...</p>
+                  </div>
+                ) : filteredTests.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Code2 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No Technical Tests Found</h3>
+                    <p className="text-muted-foreground">No tests match your current filters.</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="min-w-[200px]">Candidate</TableHead>
+                          <TableHead className="min-w-[200px]">Email</TableHead>
+                          <TableHead className="min-w-[150px]">Job</TableHead>
+                          <TableHead className="min-w-[150px]">Task</TableHead>
+                          <TableHead className="min-w-[100px]">Score</TableHead>
+                          <TableHead className="min-w-[100px]">Status</TableHead>
+                          <TableHead className="min-w-[120px]">Completed</TableHead>
+                          <TableHead className="min-w-[180px]">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredTests.map((test) => (
+                          <TableRow key={test.id}>
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                <Avatar className="h-10 w-10 flex-shrink-0">
+                                  <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-semibold">
+                                    {getInitials(test.candidate_name)}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div className="min-w-0">
+                                  <p className="font-semibold truncate">{test.candidate_name}</p>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2 text-sm">
+                                <Mail className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                                <a href={`mailto:${test.candidate_email}`} className="hover:text-primary truncate">
+                                  {test.candidate_email}
+                                </a>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              {test.job_title ? (
+                                <div className="flex items-center gap-2 text-sm">
+                                  <Briefcase className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                                  <span className="truncate">{test.job_title}</span>
+                                </div>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">-</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2 text-sm">
+                                <Code2 className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                                <span className="truncate max-w-[150px]" title={test.task_title}>{test.task_title}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              {test.overall_score !== null ? (
+                                <div className="flex items-center gap-2">
+                                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                  <span className={`font-bold text-lg ${getScoreColor(test.overall_score)}`}>
+                                    {test.overall_score}%
+                                  </span>
+                                </div>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">-</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {getStatusBadge(test.status, test.recommendation)}
+                            </TableCell>
+                            <TableCell>
+                              {test.completed_at ? (
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
+                                  <span>{formatDistanceToNow(new Date(test.completed_at), { addSuffix: true })}</span>
+                                </div>
+                              ) : test.started_at ? (
+                                <Badge variant="outline" className="bg-yellow-500 text-white border-yellow-600">
+                                  <Clock className="h-3 w-3 mr-1" />
+                                  In Progress
+                                </Badge>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">Scheduled</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    setSelectedTest(test);
+                                    setDetailModalOpen(true);
+                                  }}
+                                  className="gap-2"
+                                >
+                                  <Eye className="h-4 w-4" />
+                                  View Details
+                                </Button>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon">
+                                      <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end" className="w-48">
+                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                    {test.recording_url && (
+                                      <DropdownMenuItem onClick={() => window.open(test.recording_url!, '_blank')}>
+                                        <Eye className="mr-2 h-4 w-4" />
+                                        View Recording
+                                      </DropdownMenuItem>
+                                    )}
+                                    <DropdownMenuItem>
+                                      <PenSquare className="mr-2 h-4 w-4" />
+                                      Edit
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="text-destructive focus:text-destructive">
+                                      <Trash2 className="mr-2 h-4 w-4" />
+                                      Delete
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
       </main>

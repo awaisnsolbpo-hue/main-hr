@@ -14,7 +14,15 @@ import {
     PenSquare,
     Trash2,
     FileText,
+    XCircle,
+    CheckCircle,
+    Mail,
+    Phone,
+    Briefcase,
+    Star,
+    Loader2,
 } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { candidatesApi } from "@/services/api";
@@ -260,21 +268,29 @@ const Candidates = () => {
     const getInterviewStatusBadge = (status?: string) => {
         if (!status) return <Badge variant="outline">Pending</Badge>;
 
-        const variants: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
-            pending: "outline",
-            scheduled: "secondary",
-            completed: "default",
-            passed: "default",
-            failed: "destructive",
+        const variants: Record<string, { variant: "default" | "secondary" | "outline" | "destructive"; icon: any }> = {
+            pending: { variant: "outline", icon: null },
+            scheduled: { variant: "secondary", icon: null },
+            completed: { variant: "default", icon: CheckCircle },
+            passed: { variant: "default", icon: CheckCircle },
+            failed: { variant: "destructive", icon: XCircle },
         };
-        return <Badge variant={variants[status.toLowerCase()] || "outline"}>{status}</Badge>;
+        const config = variants[status.toLowerCase()] || { variant: "outline", icon: null };
+        const Icon = config.icon;
+        
+        return (
+            <Badge variant={config.variant} className="flex items-center gap-1">
+                {Icon && <Icon className="h-3 w-3" />}
+                {status}
+            </Badge>
+        );
     };
 
     const getSourceBadge = (source: Candidate['source']) => {
         const sourceConfig = {
-            'candidates': { variant: 'outline' as const, label: 'Candidate', color: 'bg-blue-100 text-blue-800' },
-            'Shortlisted': { variant: 'default' as const, label: 'Shortlisted', color: 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary' },
-            'Final Interview': { variant: 'secondary' as const, label: 'Final Interview', color: 'bg-green-100 text-green-800' }
+            'candidates': { variant: 'outline' as const, label: 'Candidate', color: 'bg-blue-500 text-white border-blue-600' },
+            'Shortlisted': { variant: 'default' as const, label: 'Shortlisted', color: 'bg-primary text-white dark:bg-primary dark:text-white' },
+            'Final Interview': { variant: 'secondary' as const, label: 'Final Interview', color: 'bg-green-500 text-white' }
         };
 
         const config = sourceConfig[source] || { variant: 'outline' as const, label: source || 'Unknown', color: 'bg-gray-100 text-gray-800' };
@@ -495,7 +511,7 @@ const Candidates = () => {
                             <CardContent>
                                 {loading ? (
                                     <div className="text-center py-8">
-                                        <div className="h-8 w-8 animate-spin text-primary mx-auto mb-4">...</div>
+                                        <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
                                         <p className="text-muted-foreground">Loading candidates...</p>
                                     </div>
                             ) : filteredCandidates.length === 0 ? (
@@ -507,41 +523,83 @@ const Candidates = () => {
                                     <Table>
                                         <TableHeader>
                                             <TableRow>
-                                                <TableHead>Name</TableHead>
-                                                <TableHead>Email</TableHead>
-                                                <TableHead>Phone</TableHead>
-                                                <TableHead>Job</TableHead>
-                                                <TableHead>Score</TableHead>
-                                                <TableHead>Actions</TableHead>
+                                                <TableHead className="min-w-[200px]">Candidate</TableHead>
+                                                <TableHead className="min-w-[200px]">Contact</TableHead>
+                                                <TableHead className="min-w-[150px]">Job</TableHead>
+                                                <TableHead className="min-w-[100px]">Score</TableHead>
+                                                <TableHead className="min-w-[100px]">Status</TableHead>
+                                                <TableHead className="min-w-[120px]">Date</TableHead>
+                                                <TableHead className="min-w-[180px]">Actions</TableHead>
                                             </TableRow>
                                         </TableHeader>
 
                                         <TableBody>
                                             {filteredCandidates.map((candidate) => (
                                                 <TableRow key={candidate.id}>
-                                                    <TableCell className="font-medium">
-                                                        <span className="text-sm">{candidate.name || candidate.full_name || candidate.email}</span>
+                                                    <TableCell>
+                                                        <div className="flex items-center gap-3">
+                                                            <Avatar className="h-10 w-10 flex-shrink-0">
+                                                                <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-semibold">
+                                                                    {(candidate.name || candidate.full_name || candidate.email || '').split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)}
+                                                                </AvatarFallback>
+                                                            </Avatar>
+                                                            <div className="min-w-0">
+                                                                <p className="font-semibold truncate">{candidate.name || candidate.full_name || candidate.email}</p>
+                                                            </div>
+                                                        </div>
                                                     </TableCell>
 
                                                     <TableCell>
-                                                        <a href={`mailto:${candidate.email}`} className="hover:text-primary text-sm font-medium">
-                                                            {candidate.email}
-                                                        </a>
+                                                        <div className="space-y-1">
+                                                            <div className="flex items-center gap-2 text-sm">
+                                                                <Mail className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                                                                <a href={`mailto:${candidate.email}`} className="hover:text-primary truncate">
+                                                                    {candidate.email}
+                                                                </a>
+                                                            </div>
+                                                            {candidate.phone && (
+                                                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                                                    <Phone className="h-3.5 w-3.5 flex-shrink-0" />
+                                                                    <span>{candidate.phone}</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
                                                     </TableCell>
 
                                                     <TableCell>
-                                                        <span className="text-sm font-medium">{candidate.phone || "N/A"}</span>
-                                                    </TableCell>
-
-                                                    <TableCell>
-                                                        <span className="text-sm font-medium">{candidate.jobs?.title || "N/A"}</span>
+                                                        {candidate.jobs?.title ? (
+                                                            <div className="flex items-center gap-2 text-sm">
+                                                                <Briefcase className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                                                                <span className="truncate">{candidate.jobs.title}</span>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-xs text-muted-foreground">-</span>
+                                                        )}
                                                     </TableCell>
 
                                                     <TableCell>
                                                         {getScore(candidate) !== null ? (
-                                                            <Badge variant="secondary" className="font-semibold">{getScore(candidate)}%</Badge>
+                                                            <div className="flex items-center gap-2">
+                                                                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                                                <span className="font-bold text-lg">{getScore(candidate)}%</span>
+                                                            </div>
                                                         ) : (
-                                                            <span className="text-sm text-muted-foreground">N/A</span>
+                                                            <span className="text-xs text-muted-foreground">-</span>
+                                                        )}
+                                                    </TableCell>
+
+                                                    <TableCell>
+                                                        {getInterviewStatusBadge(candidate.interview_status || candidate.status)}
+                                                    </TableCell>
+
+                                                    <TableCell>
+                                                        {candidate.created_at ? (
+                                                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                                                <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
+                                                                <span>{new Date(candidate.created_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</span>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-xs text-muted-foreground">-</span>
                                                         )}
                                                     </TableCell>
 
@@ -554,7 +612,9 @@ const Candidates = () => {
                                                                     setDetailCandidate(candidate);
                                                                     setDetailModalOpen(true);
                                                                 }}
+                                                                className="gap-2"
                                                             >
+                                                                <Eye className="h-4 w-4" />
                                                                 View Details
                                                             </Button>
                                                             <DropdownMenu>
@@ -563,34 +623,24 @@ const Candidates = () => {
                                                                         <MoreVertical className="h-4 w-4" />
                                                                     </Button>
                                                                 </DropdownMenuTrigger>
-                                                                <DropdownMenuContent align="end" className="w-64">
-                                                                    <DropdownMenuLabel>Manage Candidate</DropdownMenuLabel>
-                                                                    <DropdownMenuItem onClick={() => navigate(`/candidates/${candidate.id}`)}>
-                                                                        <Eye className="mr-2 h-4 w-4" />
-                                                                        View Full Details
-                                                                    </DropdownMenuItem>
-                                                                    {candidate.cv_file_url ? (
+                                                                <DropdownMenuContent align="end" className="w-48">
+                                                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                                    {candidate.cv_file_url && (
                                                                         <DropdownMenuItem onClick={() => setCvViewerCandidate(candidate)}>
                                                                             <FileText className="mr-2 h-4 w-4" />
                                                                             View CV
                                                                         </DropdownMenuItem>
-                                                                    ) : (
-                                                                        <DropdownMenuItem disabled>
-                                                                            <FileText className="mr-2 h-4 w-4" />
-                                                                            No CV Uploaded
-                                                                        </DropdownMenuItem>
                                                                     )}
-                                                                    <DropdownMenuSeparator />
                                                                     <DropdownMenuItem onClick={() => setEditCandidate(candidate)}>
                                                                         <PenSquare className="mr-2 h-4 w-4" />
-                                                                        Edit Candidate
+                                                                        Edit
                                                                     </DropdownMenuItem>
                                                                     <DropdownMenuItem
                                                                         className="text-destructive focus:text-destructive"
                                                                         onClick={() => setDeleteCandidate(candidate)}
                                                                     >
                                                                         <Trash2 className="mr-2 h-4 w-4" />
-                                                                        Delete Candidate
+                                                                        Delete
                                                                     </DropdownMenuItem>
                                                                 </DropdownMenuContent>
                                                             </DropdownMenu>

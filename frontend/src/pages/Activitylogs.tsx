@@ -248,13 +248,13 @@ const ActivityLogs = () => {
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case "success":
-        return "bg-green-500/10 text-green-600 border-green-500/20";
+        return "bg-green-500 text-white border-green-600";
       case "warning":
-        return "bg-yellow-500/10 text-yellow-600 border-yellow-500/20";
+        return "bg-yellow-500 text-white border-yellow-600";
       case "error":
-        return "bg-red-500/10 text-red-600 border-red-500/20";
+        return "bg-red-500 text-white border-red-600";
       default:
-        return "bg-blue-500/10 text-blue-600 border-blue-500/20";
+        return "bg-blue-500 text-white border-blue-600";
     }
   };
 
@@ -412,8 +412,8 @@ const ActivityLogs = () => {
                       }
                     </p>
                   </div>
-                  <div className="p-3 rounded-lg bg-blue-500/10">
-                    <Briefcase className="h-6 w-6 text-blue-600" />
+                  <div className="p-3 rounded-lg bg-blue-500">
+                    <Briefcase className="h-6 w-6 text-white" />
                   </div>
                 </div>
               </CardContent>

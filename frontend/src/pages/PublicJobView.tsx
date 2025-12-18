@@ -447,19 +447,42 @@ const PublicJobView = () => {
                         <CardHeader>
                             <div className="space-y-4">
                                 <div className="flex items-start justify-between">
-                                    <div className="flex-1">
-                                        <CardTitle className="text-3xl mb-2">{job.title}</CardTitle>
-                                        <div className="flex items-center gap-2">
-                                            <Badge variant="default" className="flex items-center gap-1">
-                                                <Building2 className="h-3 w-3" />
-                                                Now Hiring
-                                            </Badge>
-                                            {hasApplied && (
-                                                <Badge variant="secondary" className="flex items-center gap-1">
-                                                    <CheckCircle className="h-3 w-3" />
-                                                    Already Applied
-                                                </Badge>
+                                    <div className="flex items-start gap-4">
+                                        {/* Company Logo */}
+                                        {companyProfile?.profile_image_url ? (
+                                            <img
+                                                src={companyProfile.profile_image_url}
+                                                alt={companyProfile.company_name || "Company"}
+                                                className="w-16 h-16 rounded-lg object-cover border-2 border-border flex-shrink-0"
+                                            />
+                                        ) : (
+                                            <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center border-2 border-border flex-shrink-0">
+                                                <Building2 className="h-8 w-8 text-primary" />
+                                            </div>
+                                        )}
+                                        <div className="flex-1">
+                                            <CardTitle className="text-3xl mb-1">{job.title}</CardTitle>
+                                            {/* Company Name - Prominently Displayed */}
+                                            {companyProfile && (
+                                                <p className="text-lg text-muted-foreground font-medium mb-2">
+                                                    {companyProfile.company_name || companyProfile.full_name || "Company"}
+                                                    {companyProfile.industry && (
+                                                        <span className="text-muted-foreground/70 font-normal"> • {companyProfile.industry}</span>
+                                                    )}
+                                                </p>
                                             )}
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                <Badge variant="default" className="flex items-center gap-1">
+                                                    <Building2 className="h-3 w-3" />
+                                                    Now Hiring
+                                                </Badge>
+                                                {hasApplied && (
+                                                    <Badge variant="secondary" className="flex items-center gap-1">
+                                                        <CheckCircle className="h-3 w-3" />
+                                                        Already Applied
+                                                    </Badge>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

@@ -360,14 +360,14 @@ const InitialInterviewQualifiedPage = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Candidate</TableHead>
-                      <TableHead>Contact</TableHead>
-                      <TableHead>Job</TableHead>
-                      <TableHead>AI Score</TableHead>
-                      <TableHead>Interview Status</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Qualified Date</TableHead>
-                      <TableHead>Actions</TableHead>
+                      <TableHead className="min-w-[200px]">Candidate</TableHead>
+                      <TableHead className="min-w-[200px]">Contact</TableHead>
+                      <TableHead className="min-w-[150px]">Job</TableHead>
+                      <TableHead className="min-w-[100px]">AI Score</TableHead>
+                      <TableHead className="min-w-[120px]">Interview Status</TableHead>
+                      <TableHead className="min-w-[100px]">Status</TableHead>
+                      <TableHead className="min-w-[120px]">Qualified Date</TableHead>
+                      <TableHead className="min-w-[180px]">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -375,52 +375,40 @@ const InitialInterviewQualifiedPage = () => {
                       <TableRow key={candidate.id}>
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <Avatar className="h-10 w-10">
-                              <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
+                            <Avatar className="h-10 w-10 flex-shrink-0">
+                              <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-semibold">
                                 {getInitials(candidate.name)}
                               </AvatarFallback>
                             </Avatar>
-                            <div>
-                              <p className="font-semibold">{candidate.name}</p>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 px-2 text-xs text-primary hover:text-primary/80"
-                                onClick={() => {
-                                  setSelectedInterview(candidate);
-                                  setDetailModalOpen(true);
-                                }}
-                              >
-                                <Eye className="h-3 w-3 mr-1" />
-                                View Details
-                              </Button>
+                            <div className="min-w-0">
+                              <p className="font-semibold truncate">{candidate.name}</p>
                             </div>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="space-y-1">
-                            <div className="flex items-center gap-1 text-sm">
-                              <Mail className="h-3 w-3" />
+                            <div className="flex items-center gap-2 text-sm">
+                              <Mail className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
                               <a
                                 href={`mailto:${candidate.email}`}
-                                className="hover:text-primary"
+                                className="hover:text-primary truncate"
                               >
                                 {candidate.email}
                               </a>
                             </div>
                             {candidate.phone && (
-                              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                <Phone className="h-3 w-3" />
-                                {candidate.phone}
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Phone className="h-3.5 w-3.5 flex-shrink-0" />
+                                <span>{candidate.phone}</span>
                               </div>
                             )}
                           </div>
                         </TableCell>
                         <TableCell>
                           {candidate.job_title ? (
-                            <div className="flex items-center gap-1 text-sm">
-                              <Briefcase className="h-3 w-3" />
-                              {candidate.job_title}
+                            <div className="flex items-center gap-2 text-sm">
+                              <Briefcase className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                              <span className="truncate">{candidate.job_title}</span>
                             </div>
                           ) : (
                             <span className="text-xs text-muted-foreground">-</span>
@@ -428,9 +416,9 @@ const InitialInterviewQualifiedPage = () => {
                         </TableCell>
                         <TableCell>
                           {getScore(candidate) !== null ? (
-                            <div className="flex items-center gap-1">
-                              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                              <span className="font-semibold">{getScore(candidate)}%</span>
+                            <div className="flex items-center gap-2">
+                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                              <span className="font-bold text-lg">{getScore(candidate)}%</span>
                             </div>
                           ) : (
                             <span className="text-xs text-muted-foreground">-</span>
@@ -444,59 +432,58 @@ const InitialInterviewQualifiedPage = () => {
                           )}
                         </TableCell>
                         <TableCell>
-                          <Badge className="bg-primary/10 text-primary border-primary/30 dark:bg-primary/20 dark:text-primary dark:border-primary/40">
+                          <Badge variant="outline" className="bg-primary text-white border-primary dark:bg-primary dark:text-white dark:border-primary">
                             Qualified
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Calendar className="h-3 w-3" />
-                            {formatDate(candidate.created_at)}
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
+                            <span>{formatDate(candidate.created_at)}</span>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-64">
-                              <DropdownMenuLabel>Manage Candidate</DropdownMenuLabel>
-                              <DropdownMenuItem 
-                                onClick={() => {
-                                  setSelectedInterview(candidate);
-                                  setDetailModalOpen(true);
-                                }}
-                              >
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Full Details
-                              </DropdownMenuItem>
-                              {candidate.cv_file_url ? (
-                                <DropdownMenuItem onClick={() => setCvViewerCandidate(candidate)}>
-                                  <Eye className="mr-2 h-4 w-4" />
-                                  View CV
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedInterview(candidate);
+                                setDetailModalOpen(true);
+                              }}
+                              className="gap-2"
+                            >
+                              <Eye className="h-4 w-4" />
+                              View Details
+                            </Button>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-48">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                {candidate.cv_file_url && (
+                                  <DropdownMenuItem onClick={() => setCvViewerCandidate(candidate)}>
+                                    <Eye className="mr-2 h-4 w-4" />
+                                    View CV
+                                  </DropdownMenuItem>
+                                )}
+                                <DropdownMenuItem onClick={() => setEditCandidate(candidate)}>
+                                  <PenSquare className="mr-2 h-4 w-4" />
+                                  Edit
                                 </DropdownMenuItem>
-                              ) : (
-                                <DropdownMenuItem disabled>
-                                  <Eye className="mr-2 h-4 w-4" />
-                                  No CV Uploaded
+                                <DropdownMenuItem
+                                  className="text-destructive focus:text-destructive"
+                                  onClick={() => setDeleteCandidate(candidate)}
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Delete
                                 </DropdownMenuItem>
-                              )}
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem onClick={() => setEditCandidate(candidate)}>
-                                <PenSquare className="mr-2 h-4 w-4" />
-                                Edit Candidate
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="text-destructive focus:text-destructive"
-                                onClick={() => setDeleteCandidate(candidate)}
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete Candidate
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}

@@ -92,11 +92,11 @@ const ScheduledInterviewsPage = () => {
   const getStatusColor = (status: string | null) => {
     switch (status?.toLowerCase()) {
       case "scheduled":
-        return "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-700";
+        return "bg-blue-500 dark:bg-blue-600 text-white dark:text-white border-blue-600 dark:border-blue-700";
       case "confirmed":
-        return "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-200 dark:border-green-700";
+        return "bg-green-500 dark:bg-green-600 text-white dark:text-white border-green-600 dark:border-green-700";
       case "pending":
-        return "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 border-yellow-200 dark:border-yellow-700";
+        return "bg-yellow-500 dark:bg-yellow-600 text-white dark:text-white border-yellow-600 dark:border-yellow-700";
       default:
         return "bg-muted text-muted-foreground border-border";
     }

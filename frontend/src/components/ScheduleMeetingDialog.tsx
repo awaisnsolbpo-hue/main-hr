@@ -44,7 +44,7 @@ const ScheduleMeetingDialog = ({
         meeting_date: "",
         meeting_time: "",
         meeting_duration: 30,
-        meeting_id: "", // Changed from zoom_link to meeting_id
+        meeting_id: "",
         meeting_instructions: "Camera & Mic must be enabled",
     });
 
@@ -54,24 +54,17 @@ const ScheduleMeetingDialog = ({
 
         try {
             const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                throw new Error("User not authenticated");
-            }
+            if (!user) throw new Error("User not authenticated");
 
-            // Validate date and time
             if (!formData.meeting_date || !formData.meeting_time) {
                 throw new Error("Please select both date and time");
             }
 
-            // Combine date and time into a single timestamp
             const meetingDateTime = new Date(`${formData.meeting_date}T${formData.meeting_time}`);
-
-            // Check if date is in the future
             if (meetingDateTime <= new Date()) {
                 throw new Error("Meeting date must be in the future");
             }
 
-            // Prepare meeting data
             const meetingData = {
                 user_id: user.id,
                 candidate_id: candidate.id,
@@ -81,16 +74,15 @@ const ScheduleMeetingDialog = ({
                 meeting_date: meetingDateTime.toISOString(),
                 meeting_duration: formData.meeting_duration,
                 meeting_status: "scheduled",
-                zoom_link: formData.meeting_id || null, // Store meeting_id in zoom_link field
-                meeting_password: null, // Always null - password field removed
+                zoom_link: formData.meeting_id || null,
+                meeting_password: null,
                 meeting_instructions: formData.meeting_instructions || null,
                 job_id: candidate.job_id || null,
                 ai_score: candidate.ai_score || null,
                 cv_file_url: candidate.cv_file_url || null,
             };
 
-            // Insert into database
-            const { data, error } = await supabase
+            const { error } = await supabase
                 .from("scheduled_meetings")
                 .insert(meetingData)
                 .select()
@@ -99,11 +91,10 @@ const ScheduleMeetingDialog = ({
             if (error) throw error;
 
             toast({
-                title: "Meeting Scheduled! 🎉",
-                description: `Meeting with ${candidate.name} has been scheduled for ${meetingDateTime.toLocaleDateString()} at ${formData.meeting_time}`,
+                title: "Meeting Scheduled!",
+                description: `Meeting with ${candidate.name} scheduled for ${meetingDateTime.toLocaleDateString()} at ${formData.meeting_time}`,
             });
 
-            // Reset form
             setFormData({
                 meeting_date: "",
                 meeting_time: "",
@@ -112,13 +103,8 @@ const ScheduleMeetingDialog = ({
                 meeting_instructions: "Camera & Mic must be enabled",
             });
 
-            // Close dialog
             onOpenChange(false);
-
-            // Call success callback
-            if (onSuccess) {
-                onSuccess();
-            }
+            if (onSuccess) onSuccess();
 
         } catch (error: any) {
             console.error("Error scheduling meeting:", error);
@@ -133,13 +119,9 @@ const ScheduleMeetingDialog = ({
     };
 
     const handleChange = (field: string, value: string | number) => {
-        setFormData(prev => ({
-            ...prev,
-            [field]: value
-        }));
+        setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    // Get minimum date (tomorrow)
     const getMinDate = () => {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
@@ -148,73 +130,67 @@ const ScheduleMeetingDialog = ({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="max-w-md">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <Calendar className="h-5 w-5" />
-                        Schedule Interview Meeting
+                        Schedule Meeting
                     </DialogTitle>
                     <DialogDescription>
-                        Schedule an interview meeting with {candidate.name}
+                        Schedule an interview with {candidate.name}
                     </DialogDescription>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-4 mt-4">
                     {/* Candidate Info */}
-                    <div className="p-4 bg-gradient-to-r from-primary/10 to-accent/10 rounded-xl border border-primary/20 space-y-1.5 shadow-sm">
-                        <p className="font-medium">{candidate.name}</p>
-                        <p className="text-sm text-muted-foreground">{candidate.email}</p>
+                    <div className="p-3 bg-muted/50 rounded-lg space-y-1">
+                        <p className="font-medium text-sm">{candidate.name}</p>
+                        <p className="text-xs text-muted-foreground">{candidate.email}</p>
                         {candidate.phone && (
-                            <p className="text-sm text-muted-foreground">{candidate.phone}</p>
+                            <p className="text-xs text-muted-foreground">{candidate.phone}</p>
                         )}
                         {candidate.ai_score && (
-                            <p className="text-sm font-medium text-primary">
-                                AI Score: {candidate.ai_score}%
-                            </p>
+                            <p className="text-xs font-medium text-primary">AI Score: {candidate.ai_score}%</p>
                         )}
                     </div>
 
-                    {/* Meeting Date */}
-                    <div className="space-y-2">
-                        <Label htmlFor="meeting_date" className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4" />
-                            Meeting Date *
-                        </Label>
-                        <Input
-                            id="meeting_date"
-                            type="date"
-                            required
-                            min={getMinDate()}
-                            value={formData.meeting_date}
-                            onChange={(e) => handleChange("meeting_date", e.target.value)}
-                        />
-                    </div>
-
-                    {/* Meeting Time */}
-                    <div className="space-y-2">
-                        <Label htmlFor="meeting_time" className="flex items-center gap-2">
-                            <Clock className="h-4 w-4" />
-                            Meeting Time *
-                        </Label>
-                        <Input
-                            id="meeting_time"
-                            type="time"
-                            required
-                            value={formData.meeting_time}
-                            onChange={(e) => handleChange("meeting_time", e.target.value)}
-                        />
+                    {/* Date & Time */}
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                            <Label htmlFor="meeting_date" className="text-sm flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />Date *
+                            </Label>
+                            <Input
+                                id="meeting_date"
+                                type="date"
+                                required
+                                min={getMinDate()}
+                                value={formData.meeting_date}
+                                onChange={(e) => handleChange("meeting_date", e.target.value)}
+                            />
+                        </div>
+                        <div className="space-y-1">
+                            <Label htmlFor="meeting_time" className="text-sm flex items-center gap-1">
+                                <Clock className="h-3 w-3" />Time *
+                            </Label>
+                            <Input
+                                id="meeting_time"
+                                type="time"
+                                required
+                                value={formData.meeting_time}
+                                onChange={(e) => handleChange("meeting_time", e.target.value)}
+                            />
+                        </div>
                     </div>
 
                     {/* Duration */}
-                    <div className="space-y-2">
-                        <Label htmlFor="meeting_duration">
-                            Duration (minutes)
-                        </Label>
+                    <div className="space-y-1">
+                        <Label htmlFor="meeting_duration" className="text-sm">Duration</Label>
                         <select
                             id="meeting_duration"
                             value={formData.meeting_duration}
                             onChange={(e) => handleChange("meeting_duration", parseInt(e.target.value))}
-                            className="w-full h-11 px-4 rounded-xl border-2 border-border/60 bg-background/95 backdrop-blur-sm text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:border-primary/80 transition-all hover:border-primary/50"
+                            className="w-full h-10 px-3 rounded-md border bg-background text-sm"
                         >
                             <option value={15}>15 minutes</option>
                             <option value={30}>30 minutes</option>
@@ -224,58 +200,41 @@ const ScheduleMeetingDialog = ({
                         </select>
                     </div>
 
-                    {/* Meeting ID - CHANGED FROM ZOOM LINK */}
-                    <div className="space-y-2">
-                        <Label htmlFor="meeting_id" className="flex items-center gap-2">
-                            <Video className="h-4 w-4" />
-                            Meeting ID *
+                    {/* Meeting ID */}
+                    <div className="space-y-1">
+                        <Label htmlFor="meeting_id" className="text-sm flex items-center gap-1">
+                            <Video className="h-3 w-3" />Meeting ID *
                         </Label>
                         <Input
                             id="meeting_id"
                             type="text"
-                            placeholder="e.g., nsolbpo.usa"
+                            placeholder="e.g., team.meeting"
                             value={formData.meeting_id}
                             onChange={(e) => handleChange("meeting_id", e.target.value)}
                             required
                         />
-                        <p className="text-xs text-muted-foreground">
-                            Enter your company meeting ID (e.g., nsolbpo.usa, team.meeting, etc.)
-                        </p>
+                        <p className="text-xs text-muted-foreground">Your company meeting ID</p>
                     </div>
 
-                    {/* MEETING PASSWORD FIELD REMOVED */}
-
                     {/* Instructions */}
-                    <div className="space-y-2">
-                        <Label htmlFor="meeting_instructions">
-                            Instructions for Candidate
-                        </Label>
+                    <div className="space-y-1">
+                        <Label htmlFor="meeting_instructions" className="text-sm">Instructions</Label>
                         <Textarea
                             id="meeting_instructions"
                             placeholder="Any special instructions..."
                             value={formData.meeting_instructions}
                             onChange={(e) => handleChange("meeting_instructions", e.target.value)}
-                            rows={3}
+                            rows={2}
                         />
                     </div>
 
                     {/* Buttons */}
-                    <div className="flex gap-3 pt-4">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => onOpenChange(false)}
-                            className="flex-1"
-                            disabled={loading}
-                        >
+                    <div className="flex gap-3 pt-2">
+                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1" disabled={loading}>
                             Cancel
                         </Button>
-                        <Button
-                            type="submit"
-                            className="flex-1"
-                            disabled={loading}
-                        >
-                            {loading ? "Scheduling..." : "Schedule Meeting"}
+                        <Button type="submit" className="flex-1" disabled={loading}>
+                            {loading ? "Scheduling..." : "Schedule"}
                         </Button>
                     </div>
                 </form>
