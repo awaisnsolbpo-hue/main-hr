@@ -227,7 +227,7 @@ export default function ScheduledMeetings() {
                                 icon={<Search className="h-4 w-4" />}
                             />
                         </div>
-
+{/* / */}
                         {/* Filter Buttons */}
                         <div className="flex gap-2">
                             <Button
