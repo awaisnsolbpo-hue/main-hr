@@ -241,7 +241,7 @@ export const getAllJobs = async (
           status: job.status,
           required_skills: job.required_skills || [],
           preferred_skills: job.preferred_skills || [],
-          applicationCount: count || 0,
+          applicationCount: count ?? null,
         };
       })
     );

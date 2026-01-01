@@ -1,21 +1,20 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
+import { MDInput } from "@/components/ui/MDInput";
+import { MDTable, MDTableHeader, MDTableHeaderCell, MDTableBody, MDTableRow, MDTableCell } from "@/components/ui/MDTable";
 import {
     Calendar,
     Clock,
     Video,
     Mail,
-    User,
     Search,
-    ArrowLeft,
-    ExternalLink,
     FileText,
     Phone,
+    Loader2,
+    Star,
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -182,11 +181,11 @@ export default function ScheduledMeetings() {
         const statusLower = status?.toLowerCase() || "scheduled";
 
         const statusConfig: Record<string, { label: string; className: string }> = {
-            scheduled: { label: "Scheduled", className: "bg-blue-100 text-blue-700 border-blue-200" },
-            pending: { label: "Pending", className: "bg-yellow-100 text-yellow-700 border-yellow-200" },
-            completed: { label: "Completed", className: "bg-green-100 text-green-700 border-green-200" },
-            cancelled: { label: "Cancelled", className: "bg-red-100 text-red-700 border-red-200" },
-            confirmed: { label: "Confirmed", className: "bg-emerald-100 text-emerald-700 border-emerald-200" },
+            scheduled: { label: "Scheduled", className: "bg-[#1A73E8]/10 text-[#1A73E8] border border-[#1A73E8]/20" },
+            pending: { label: "Pending", className: "bg-[#fb8c00]/10 text-[#fb8c00] border border-[#fb8c00]/20" },
+            completed: { label: "Completed", className: "bg-[#4CAF50]/10 text-[#4CAF50] border border-[#4CAF50]/20" },
+            cancelled: { label: "Cancelled", className: "bg-[#F44335]/10 text-[#F44335] border border-[#F44335]/20" },
+            confirmed: { label: "Confirmed", className: "bg-[#66BB6A]/10 text-[#66BB6A] border border-[#66BB6A]/20" },
         };
 
         const config = statusConfig[statusLower] || statusConfig.scheduled;
@@ -195,244 +194,228 @@ export default function ScheduledMeetings() {
 
     const filteredMeetings = getFilteredMeetings();
 
+    if (loading) {
+        return (
+            <DashboardLayout>
+                <div className="min-h-screen bg-[#f0f2f5] flex items-center justify-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-[#e91e63]" />
+                </div>
+            </DashboardLayout>
+        );
+    }
+
     return (
         <DashboardLayout>
-            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-                <div className="max-w-7xl mx-auto space-y-6">
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <Link to="/dashboard">
-                            <Button variant="outline" size="icon">
-                                <ArrowLeft className="h-4 w-4" />
-                            </Button>
-                        </Link>
-                        <div>
-                            <h1 className="text-3xl font-bold text-gray-900">Scheduled Meetings</h1>
-                            <p className="text-gray-600 mt-1">Manage all your interview meetings</p>
-                        </div>
-                    </div>
-                    <Badge variant="outline" className="text-lg px-4 py-2">
-                        {filteredMeetings.length} Meeting{filteredMeetings.length !== 1 ? "s" : ""}
-                    </Badge>
+            <div className="min-h-screen bg-[#f0f2f5] p-6">
+                {/* Page Header - Material Dashboard Style */}
+                <div className="mb-6">
+                    <h1 className="text-2xl font-bold text-[#344767] mb-2">Scheduled Meetings</h1>
+                    <p className="text-sm font-light text-[#7b809a]">
+                        Manage all your interview meetings
+                    </p>
                 </div>
 
                 {/* Filters and Search */}
-                <Card>
-                    <CardContent className="p-6">
-                        <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                            {/* Search */}
-                            <div className="relative flex-1 max-w-md">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                                <Input
-                                    placeholder="Search by name, email, or job title..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="pl-10"
-                                />
-                            </div>
-
-                            {/* Filter Buttons */}
-                            <div className="flex gap-2">
-                                <Button
-                                    variant={filter === "upcoming" ? "default" : "outline"}
-                                    onClick={() => setFilter("upcoming")}
-                                    size="sm"
-                                >
-                                    Upcoming
-                                </Button>
-                                <Button
-                                    variant={filter === "past" ? "default" : "outline"}
-                                    onClick={() => setFilter("past")}
-                                    size="sm"
-                                >
-                                    Past
-                                </Button>
-                                <Button
-                                    variant={filter === "all" ? "default" : "outline"}
-                                    onClick={() => setFilter("all")}
-                                    size="sm"
-                                >
-                                    All
-                                </Button>
-                            </div>
+                <div className="bg-white rounded-2xl shadow-md-lg p-6 mb-6">
+                    <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                        {/* Search */}
+                        <div className="flex-1 max-w-md">
+                            <MDInput
+                                placeholder="Search by name, email, or job title..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                icon={<Search className="h-4 w-4" />}
+                            />
                         </div>
-                    </CardContent>
-                </Card>
 
-                {/* Meetings List */}
-                {loading ? (
-                    <div className="flex items-center justify-center py-12">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                        {/* Filter Buttons */}
+                        <div className="flex gap-2">
+                            <Button
+                                onClick={() => setFilter("upcoming")}
+                                size="sm"
+                                className={filter === "upcoming"
+                                    ? "bg-gradient-to-r from-[#EC407A] to-[#D81B60] text-white border-0 shadow-pink hover:shadow-md"
+                                    : "bg-white text-[#7b809a] border border-[#d2d6da] hover:bg-[#f0f2f5] hover:text-[#344767]"}
+                            >
+                                Upcoming
+                            </Button>
+                            <Button
+                                onClick={() => setFilter("past")}
+                                size="sm"
+                                className={filter === "past"
+                                    ? "bg-gradient-to-r from-[#EC407A] to-[#D81B60] text-white border-0 shadow-pink hover:shadow-md"
+                                    : "bg-white text-[#7b809a] border border-[#d2d6da] hover:bg-[#f0f2f5] hover:text-[#344767]"}
+                            >
+                                Past
+                            </Button>
+                            <Button
+                                onClick={() => setFilter("all")}
+                                size="sm"
+                                className={filter === "all"
+                                    ? "bg-gradient-to-r from-[#EC407A] to-[#D81B60] text-white border-0 shadow-pink hover:shadow-md"
+                                    : "bg-white text-[#7b809a] border border-[#d2d6da] hover:bg-[#f0f2f5] hover:text-[#344767]"}
+                            >
+                                All
+                            </Button>
+                        </div>
                     </div>
-                ) : filteredMeetings.length === 0 ? (
-                    <Card>
-                        <CardContent className="flex flex-col items-center justify-center py-12">
-                            <Calendar className="h-16 w-16 text-gray-300 mb-4" />
-                            <h3 className="text-xl font-semibold text-gray-600 mb-2">No Meetings Found</h3>
-                            <p className="text-gray-500">
-                                {searchTerm
-                                    ? "Try adjusting your search terms"
-                                    : filter === "upcoming"
-                                        ? "No upcoming meetings scheduled"
-                                        : filter === "past"
-                                            ? "No past meetings found"
-                                            : "Schedule your first meeting from the Candidates page"}
-                            </p>
-                        </CardContent>
-                    </Card>
-                ) : (
-                    <div className="grid gap-4">
-                        {filteredMeetings.map((meeting) => {
-                            const upcoming = isUpcoming(meeting.meeting_date);
-                            const meetingDateTime = new Date(meeting.meeting_date);
-
-                            return (
-                                <Card
-                                    key={meeting.id}
-                                    className={`transition-all hover:shadow-lg ${upcoming ? "border-l-4 border-l-blue-500" : "opacity-75"
-                                        }`}
-                                >
-                                    <CardContent className="p-6">
-                                        <div className="flex flex-col lg:flex-row gap-6">
-                                            {/* Left Section - Candidate Info */}
-                                            <div className="flex-1 space-y-4">
-                                                <div className="flex items-start justify-between">
-                                                    <div className="flex-1">
-                                                        <div className="flex items-center gap-3 mb-2 flex-wrap">
-                                                            <User className="h-5 w-5 text-blue-600" />
-                                                            <h3 className="text-xl font-bold text-gray-900">
-                                                                {meeting.candidate_name}
-                                                            </h3>
-                                                            {getStatusBadge(meeting.meeting_status)}
-                                                            {meeting.ai_score && (
-                                                                <Badge
-                                                                    variant={
-                                                                        meeting.ai_score >= 80
-                                                                            ? "default"
-                                                                            : meeting.ai_score >= 60
-                                                                                ? "secondary"
-                                                                                : "outline"
-                                                                    }
-                                                                >
-                                                                    AI Score: {meeting.ai_score}%
-                                                                </Badge>
-                                                            )}
-                                                        </div>
-                                                        <div className="space-y-1">
-                                                            <div className="flex items-center gap-2 text-gray-600">
-                                                                <Mail className="h-4 w-4" />
-                                                                <a 
-                                                                    href={`mailto:${meeting.candidate_email}`}
-                                                                    className="hover:text-blue-600 hover:underline"
-                                                                >
-                                                                    {meeting.candidate_email}
-                                                                </a>
-                                                            </div>
-                                                            {meeting.candidate_phone && (
-                                                                <div className="flex items-center gap-2 text-gray-600">
-                                                                    <Phone className="h-4 w-4" />
-                                                                    <a 
-                                                                        href={`tel:${meeting.candidate_phone}`}
-                                                                        className="hover:text-blue-600 hover:underline"
-                                                                    >
-                                                                        {meeting.candidate_phone}
-                                                                    </a>
-                                                                </div>
-                                                            )}
-                                                            {meeting.job_title && (
-                                                                <div className="text-sm text-gray-500">
-                                                                    Position: <span className="font-medium">{meeting.job_title}</span>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                    {upcoming && (
-                                                        <Badge className="bg-green-100 text-green-700 border-green-200 whitespace-nowrap">
-                                                            {getTimeUntilMeeting(meeting.meeting_date)}
-                                                        </Badge>
-                                                    )}
-                                                </div>
-
-                                                {/* Meeting Details */}
-                                                <div className="grid md:grid-cols-2 gap-3">
-                                                    <div className="flex items-center gap-2 text-gray-700">
-                                                        <Calendar className="h-4 w-4 text-blue-600" />
-                                                        <span className="font-medium">
-                                                            {format(meetingDateTime, "EEEE, MMMM d, yyyy")}
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex items-center gap-2 text-gray-700">
-                                                        <Clock className="h-4 w-4 text-blue-600" />
-                                                        <span className="font-medium">
-                                                            {format(meetingDateTime, "h:mm a")} ({meeting.meeting_duration} mins)
-                                                        </span>
-                                                    </div>
-                                                </div>
-
-                                                {/* Instructions */}
-                                                {meeting.instructions && (
-                                                    <div className="bg-gray-50 p-4 rounded-lg">
-                                                        <div className="flex items-start gap-2">
-                                                            <FileText className="h-4 w-4 text-gray-500 mt-0.5" />
-                                                            <div>
-                                                                <p className="text-sm font-medium text-gray-700 mb-1">Instructions:</p>
-                                                                <p className="text-sm text-gray-600">{meeting.instructions}</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            {/* Right Section - Meeting Link */}
-                                            <div className="lg:w-64 space-y-3">
-                                                <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 space-y-3">
-                                                    <div className="flex items-center gap-2 text-blue-900 font-semibold">
-                                                        <Video className="h-5 w-5" />
-                                                        <span>Meeting Link</span>
-                                                    </div>
-
-                                                    {meeting.meeting_link && (
-                                                        <a
-                                                            href={meeting.meeting_link}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="block"
-                                                        >
-                                                            <Button className="w-full gap-2" size="sm">
-                                                                Join Meeting
-                                                                <ExternalLink className="h-3 w-3" />
-                                                            </Button>
-                                                        </a>
-                                                    )}
-
-                                                    {meeting.cv_file_url && (
-                                                        <a
-                                                            href={meeting.cv_file_url}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="block"
-                                                        >
-                                                            <Button variant="outline" className="w-full gap-2" size="sm">
-                                                                <FileText className="h-3 w-3" />
-                                                                View CV
-                                                            </Button>
-                                                        </a>
-                                                    )}
-                                                </div>
-
-                                                <div className="text-xs text-gray-500 text-center">
-                                                    Scheduled on {format(new Date(meeting.created_at), "MMM d, yyyy")}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            );
-                        })}
-                    </div>
-                )}
                 </div>
+
+                <MDTable
+                    title="All Meetings"
+                    headerActions={
+                        <Badge className="bg-gradient-to-br from-[#1A73E8] to-[#49a3f1] text-white border-0 shadow-blue">
+                            {filteredMeetings.length} Total
+                        </Badge>
+                    }
+                >
+                    {filteredMeetings.length === 0 ? (
+                        <tbody>
+                            <tr>
+                                <td colSpan={10}>
+                                    <div className="text-center py-12">
+                                        <Calendar className="h-16 w-16 text-[#7b809a] mx-auto mb-4 opacity-50" />
+                                        <h3 className="text-lg font-semibold text-[#344767] mb-2">No Meetings Found</h3>
+                                        <p className="text-sm font-light text-[#7b809a]">
+                                            {searchTerm
+                                                ? "Try adjusting your search terms"
+                                                : filter === "upcoming"
+                                                    ? "No upcoming meetings scheduled"
+                                                    : filter === "past"
+                                                        ? "No past meetings found"
+                                                        : "Schedule your first meeting from the Candidates page"}
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    ) : (
+                        <>
+                            <MDTableHeader>
+                                <MDTableHeaderCell>Candidate</MDTableHeaderCell>
+                                <MDTableHeaderCell>Contact</MDTableHeaderCell>
+                                <MDTableHeaderCell>Job Position</MDTableHeaderCell>
+                                <MDTableHeaderCell>Meeting Date</MDTableHeaderCell>
+                                <MDTableHeaderCell>Time</MDTableHeaderCell>
+                                <MDTableHeaderCell>Duration</MDTableHeaderCell>
+                                <MDTableHeaderCell>AI Score</MDTableHeaderCell>
+                                <MDTableHeaderCell>Status</MDTableHeaderCell>
+                                <MDTableHeaderCell>Time Until</MDTableHeaderCell>
+                                <MDTableHeaderCell>Actions</MDTableHeaderCell>
+                            </MDTableHeader>
+                            <MDTableBody>
+                                {filteredMeetings.map((meeting) => {
+                                    const upcoming = isUpcoming(meeting.meeting_date);
+                                    const meetingDateTime = new Date(meeting.meeting_date);
+
+                                    return (
+                                        <MDTableRow key={meeting.id}>
+                                            <MDTableCell>
+                                                <span className="font-semibold text-[#344767]">{meeting.candidate_name}</span>
+                                            </MDTableCell>
+                                            <MDTableCell>
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center gap-2 text-sm text-[#7b809a]">
+                                                        <Mail className="h-3.5 w-3.5 flex-shrink-0" />
+                                                        <a
+                                                            href={`mailto:${meeting.candidate_email}`}
+                                                            className="hover:text-[#e91e63] truncate"
+                                                        >
+                                                            {meeting.candidate_email}
+                                                        </a>
+                                                    </div>
+                                                    {meeting.candidate_phone && (
+                                                        <div className="flex items-center gap-2 text-sm text-[#7b809a]">
+                                                            <Phone className="h-3.5 w-3.5 flex-shrink-0" />
+                                                            <a
+                                                                href={`tel:${meeting.candidate_phone}`}
+                                                                className="hover:text-[#e91e63]"
+                                                            >
+                                                                {meeting.candidate_phone}
+                                                            </a>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </MDTableCell>
+                                            <MDTableCell>
+                                                {meeting.job_title ? (
+                                                    <span className="text-sm text-[#344767]">{meeting.job_title}</span>
+                                                ) : (
+                                                    <span className="text-xs text-[#7b809a]">-</span>
+                                                )}
+                                            </MDTableCell>
+                                            <MDTableCell>
+                                                <div className="flex items-center gap-2 text-sm text-[#344767]">
+                                                    <Calendar className="h-3.5 w-3.5 text-[#7b809a]" />
+                                                    {format(meetingDateTime, "MMM d, yyyy")}
+                                                </div>
+                                            </MDTableCell>
+                                            <MDTableCell>
+                                                <div className="flex items-center gap-2 text-sm text-[#344767]">
+                                                    <Clock className="h-3.5 w-3.5 text-[#7b809a]" />
+                                                    {format(meetingDateTime, "h:mm a")}
+                                                </div>
+                                            </MDTableCell>
+                                            <MDTableCell>
+                                                <Badge className="bg-[#7b809a]/10 text-[#7b809a] border border-[#7b809a]/20">
+                                                    {meeting.meeting_duration} min
+                                                </Badge>
+                                            </MDTableCell>
+                                            <MDTableCell>
+                                                {meeting.ai_score ? (
+                                                    <div className="flex items-center gap-2">
+                                                        <Star className="h-4 w-4 fill-[#fb8c00] text-[#fb8c00]" />
+                                                        <span className="font-bold text-lg text-[#344767]">{meeting.ai_score}%</span>
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-xs text-[#7b809a]">-</span>
+                                                )}
+                                            </MDTableCell>
+                                            <MDTableCell>
+                                                {getStatusBadge(meeting.meeting_status)}
+                                            </MDTableCell>
+                                            <MDTableCell>
+                                                {upcoming ? (
+                                                    <Badge className="bg-[#66BB6A]/10 text-[#66BB6A] border border-[#66BB6A]/20">
+                                                        {getTimeUntilMeeting(meeting.meeting_date)}
+                                                    </Badge>
+                                                ) : (
+                                                    <span className="text-xs text-[#7b809a]">Past</span>
+                                                )}
+                                            </MDTableCell>
+                                            <MDTableCell>
+                                                <div className="flex gap-2">
+                                                    {meeting.meeting_link && (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => window.open(meeting.meeting_link, "_blank")}
+                                                            className="hover:bg-[#e91e63]/10 hover:text-[#e91e63] text-[#7b809a]"
+                                                        >
+                                                            <Video className="h-4 w-4 mr-1" />
+                                                            Join
+                                                        </Button>
+                                                    )}
+                                                    {meeting.cv_file_url && (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => window.open(meeting.cv_file_url, "_blank")}
+                                                            className="hover:bg-[#1A73E8]/10 hover:text-[#1A73E8] text-[#7b809a]"
+                                                        >
+                                                            <FileText className="h-4 w-4 mr-1" />
+                                                            CV
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </MDTableCell>
+                                        </MDTableRow>
+                                    );
+                                })}
+                            </MDTableBody>
+                        </>
+                    )}
+                </MDTable>
             </div>
         </DashboardLayout>
     );

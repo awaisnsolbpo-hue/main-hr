@@ -1,14 +1,16 @@
 // src/lib/linkedinAuth.ts
-// LinkedIn OAuth Authentication Library (Simplified - No Edge Function Required)
+// LinkedIn OAuth Authentication Library
 
 import { supabase } from "@/integrations/supabase/client";
 
 const LINKEDIN_CLIENT_ID = import.meta.env.VITE_LINKEDIN_CLIENT_ID;
-const LINKEDIN_CLIENT_SECRET = import.meta.env.VITE_LINKEDIN_CLIENT_SECRET;
 const REDIRECT_URI = import.meta.env.VITE_LINKEDIN_REDIRECT_URI || "http://localhost:8080/auth/linkedin/callback";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const LINKEDIN_AUTH_URL = "https://www.linkedin.com/oauth/v2/authorization";
-const LINKEDIN_TOKEN_URL = "https://www.linkedin.com/oauth/v2/accessToken";
+
+// SECURITY: Client secrets must NEVER be in frontend code
+// Token exchange is now handled by backend API
 
 // Updated scopes for company page access
 const SCOPES = [
@@ -63,39 +65,40 @@ export const initiateLinkedInOAuth = async (): Promise<void> => {
 };
 
 /**
- * Exchange authorization code for access token using CORS proxy
+ * Exchange authorization code for access token via backend API
+ * SECURITY: Token exchange must happen on backend with client secret
  */
 export const exchangeCodeForToken = async (code: string): Promise<LinkedInTokens> => {
   try {
-    // Use a CORS proxy for development
-    const CORS_PROXY = "https://corsproxy.io/?";
-    
-    const params = new URLSearchParams({
-      grant_type: "authorization_code",
-      code: code,
-      client_id: LINKEDIN_CLIENT_ID,
-      client_secret: LINKEDIN_CLIENT_SECRET,
-      redirect_uri: REDIRECT_URI,
-    });
+    if (!API_BASE_URL) {
+      throw new Error("API_BASE_URL is not configured");
+    }
 
-    const response = await fetch(`${CORS_PROXY}${encodeURIComponent(LINKEDIN_TOKEN_URL)}`, {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      throw new Error("User not authenticated");
+    }
+
+    const response = await fetch(`${API_BASE_URL}/oauth/linkedin/exchange`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${session.access_token}`,
       },
-      body: params.toString(),
+      body: JSON.stringify({
+        code,
+        redirect_uri: REDIRECT_URI,
+      }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("LinkedIn token exchange error:", errorText);
       throw new Error(`Failed to exchange code: ${response.status} ${errorText}`);
     }
 
     const tokens: LinkedInTokens = await response.json();
     return tokens;
   } catch (error) {
-    console.error("Error exchanging code for token:", error);
     throw error;
   }
 };

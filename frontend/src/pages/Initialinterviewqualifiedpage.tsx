@@ -3,17 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { interviewsApi, candidatesApi } from "@/services/api";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  MDTable,
+  MDTableHeader,
+  MDTableHeaderCell,
+  MDTableBody,
+  MDTableRow,
+  MDTableCell
+} from "@/components/ui/MDTable";
 import {
   CheckCircle,
   ArrowLeft,
@@ -327,8 +326,8 @@ const InitialInterviewQualifiedPage = () => {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="min-h-screen bg-[var(--gradient-subtle)] flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="min-h-screen bg-[#f0f2f5] flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-[#e91e63]" />
         </div>
       </DashboardLayout>
     );
@@ -336,177 +335,167 @@ const InitialInterviewQualifiedPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-[var(--gradient-subtle)]">
-        {/* Main Content */}
-        <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Card className="shadow-elegant">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>Qualified for Final Interview</span>
-              <Badge variant="secondary">{candidates.length} Total</Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {candidates.length === 0 ? (
-              <div className="text-center py-12">
-                <CheckCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No Qualified Candidates</h3>
-                <p className="text-muted-foreground mb-4">
-                  Candidates who pass initial screening will appear here
-                </p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Candidate</TableHead>
-                      <TableHead>Contact</TableHead>
-                      <TableHead>Job</TableHead>
-                      <TableHead>AI Score</TableHead>
-                      <TableHead>Interview Status</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Qualified Date</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {candidates.map((candidate) => (
-                      <TableRow key={candidate.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <Avatar className="h-10 w-10">
-                              <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
-                                {getInitials(candidate.name)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <p className="font-semibold">{candidate.name}</p>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 px-2 text-xs text-primary hover:text-primary/80"
-                                onClick={() => {
-                                  setSelectedInterview(candidate);
-                                  setDetailModalOpen(true);
-                                }}
-                              >
-                                <Eye className="h-3 w-3 mr-1" />
-                                View Details
-                              </Button>
-                            </div>
+      <div className="min-h-screen bg-[#f0f2f5] p-6">
+        {/* Page Header - Material Dashboard Style */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-[#344767] mb-2">Qualified for Final Interview</h1>
+          <p className="text-sm font-light text-[#7b809a]">
+            Candidates qualified for the final interview stage
+          </p>
+        </div>
+
+        {/* Material Dashboard Table */}
+        <MDTable
+          title="Final Interview Candidates"
+          headerActions={
+            <Badge className="bg-gradient-to-br from-[#4CAF50] to-[#66BB6A] text-white border-0 shadow-green">
+              {candidates.length} Total
+            </Badge>
+          }
+        >
+          {candidates.length === 0 ? (
+            <tbody>
+              <tr>
+                <td colSpan={8}>
+                  <div className="text-center py-12">
+                    <CheckCircle className="h-16 w-16 text-[#7b809a] mx-auto mb-4 opacity-50" />
+                    <h3 className="text-lg font-semibold text-[#344767] mb-2">No Qualified Candidates</h3>
+                    <p className="text-sm font-light text-[#7b809a]">
+                      Candidates who pass initial screening will appear here
+                    </p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          ) : (
+            <>
+              <MDTableHeader>
+                <MDTableHeaderCell>Candidate</MDTableHeaderCell>
+                <MDTableHeaderCell>Contact</MDTableHeaderCell>
+                <MDTableHeaderCell>Job</MDTableHeaderCell>
+                <MDTableHeaderCell>AI Score</MDTableHeaderCell>
+                <MDTableHeaderCell>Interview Status</MDTableHeaderCell>
+                <MDTableHeaderCell>Status</MDTableHeaderCell>
+                <MDTableHeaderCell>Qualified Date</MDTableHeaderCell>
+                <MDTableHeaderCell>Actions</MDTableHeaderCell>
+              </MDTableHeader>
+              <MDTableBody>
+                {candidates.map((candidate) => (
+                  <MDTableRow key={candidate.id}>
+                    <MDTableCell>
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10 border-2 border-[#e91e63]/20">
+                          <AvatarFallback className="bg-gradient-to-br from-[#EC407A] to-[#D81B60] text-white text-xs font-bold">
+                            {getInitials(candidate.name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <p className="text-sm font-semibold text-[#344767]">{candidate.name}</p>
+                      </div>
+                    </MDTableCell>
+                    <MDTableCell>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-sm text-[#7b809a]">
+                          <Mail className="h-3.5 w-3.5 flex-shrink-0" />
+                          <a href={`mailto:${candidate.email}`} className="hover:text-[#e91e63] truncate">
+                            {candidate.email}
+                          </a>
+                        </div>
+                        {candidate.phone && (
+                          <div className="flex items-center gap-2 text-sm text-[#7b809a]">
+                            <Phone className="h-3.5 w-3.5 flex-shrink-0" />
+                            <span>{candidate.phone}</span>
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-1 text-sm">
-                              <Mail className="h-3 w-3" />
-                              <a
-                                href={`mailto:${candidate.email}`}
-                                className="hover:text-primary"
-                              >
-                                {candidate.email}
-                              </a>
-                            </div>
-                            {candidate.phone && (
-                              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                <Phone className="h-3 w-3" />
-                                {candidate.phone}
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {candidate.job_title ? (
-                            <div className="flex items-center gap-1 text-sm">
-                              <Briefcase className="h-3 w-3" />
-                              {candidate.job_title}
-                            </div>
-                          ) : (
-                            <span className="text-xs text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {getScore(candidate) !== null ? (
-                            <div className="flex items-center gap-1">
-                              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                              <span className="font-semibold">{getScore(candidate)}%</span>
-                            </div>
-                          ) : (
-                            <span className="text-xs text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {candidate.interview_status ? (
-                            <Badge variant="outline">{candidate.interview_status}</Badge>
-                          ) : (
-                            <Badge variant="secondary">Pending</Badge>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Badge className="bg-primary/10 text-primary border-primary/30 dark:bg-primary/20 dark:text-primary dark:border-primary/40">
-                            Qualified
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Calendar className="h-3 w-3" />
-                            {formatDate(candidate.created_at)}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-64">
-                              <DropdownMenuLabel>Manage Candidate</DropdownMenuLabel>
-                              <DropdownMenuItem 
-                                onClick={() => {
-                                  setSelectedInterview(candidate);
-                                  setDetailModalOpen(true);
-                                }}
-                              >
+                        )}
+                      </div>
+                    </MDTableCell>
+                    <MDTableCell>
+                      {candidate.job_title ? (
+                        <div className="flex items-center gap-2 text-sm text-[#7b809a]">
+                          <Briefcase className="h-3.5 w-3.5 flex-shrink-0" />
+                          <span className="truncate">{candidate.job_title}</span>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-[#7b809a]">-</span>
+                      )}
+                    </MDTableCell>
+                    <MDTableCell>
+                      {getScore(candidate) !== null ? (
+                        <div className="flex items-center gap-2">
+                          <Star className="h-4 w-4 fill-[#fb8c00] text-[#fb8c00]" />
+                          <span className="font-bold text-lg text-[#344767]">{getScore(candidate)}%</span>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-[#7b809a]">-</span>
+                      )}
+                    </MDTableCell>
+                    <MDTableCell>
+                      {candidate.interview_status ? (
+                        <Badge className="bg-[#1A73E8]/10 text-[#1A73E8] border border-[#1A73E8]/20">{candidate.interview_status}</Badge>
+                      ) : (
+                        <Badge className="bg-[#7b809a]/10 text-[#7b809a] border border-[#7b809a]/20">Pending</Badge>
+                      )}
+                    </MDTableCell>
+                    <MDTableCell>
+                      <Badge className="bg-[#4CAF50] text-white border-0 hover:bg-[#43A047]">
+                        Qualified
+                      </Badge>
+                    </MDTableCell>
+                    <MDTableCell>
+                      <div className="flex items-center gap-2 text-sm text-[#7b809a]">
+                        <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
+                        <span>{formatDate(candidate.created_at)}</span>
+                      </div>
+                    </MDTableCell>
+                    <MDTableCell>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedInterview(candidate);
+                            setDetailModalOpen(true);
+                          }}
+                          className="hover:bg-[#e91e63]/10 hover:text-[#e91e63] text-[#7b809a]"
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          View
+                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="hover:bg-[#f0f2f5]">
+                              <MoreVertical className="h-4 w-4 text-[#7b809a]" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48 rounded-xl border-[#d2d6da]">
+                            <DropdownMenuLabel className="text-[#344767] font-semibold">Actions</DropdownMenuLabel>
+                            {candidate.cv_file_url && (
+                              <DropdownMenuItem onClick={() => setCvViewerCandidate(candidate)} className="text-[#7b809a] focus:text-[#344767]">
                                 <Eye className="mr-2 h-4 w-4" />
-                                View Full Details
+                                View CV
                               </DropdownMenuItem>
-                              {candidate.cv_file_url ? (
-                                <DropdownMenuItem onClick={() => setCvViewerCandidate(candidate)}>
-                                  <Eye className="mr-2 h-4 w-4" />
-                                  View CV
-                                </DropdownMenuItem>
-                              ) : (
-                                <DropdownMenuItem disabled>
-                                  <Eye className="mr-2 h-4 w-4" />
-                                  No CV Uploaded
-                                </DropdownMenuItem>
-                              )}
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem onClick={() => setEditCandidate(candidate)}>
-                                <PenSquare className="mr-2 h-4 w-4" />
-                                Edit Candidate
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="text-destructive focus:text-destructive"
-                                onClick={() => setDeleteCandidate(candidate)}
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete Candidate
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </main>
+                            )}
+                            <DropdownMenuItem onClick={() => setEditCandidate(candidate)} className="text-[#7b809a] focus:text-[#344767]">
+                              <PenSquare className="mr-2 h-4 w-4" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-[#F44335] focus:text-[#F44335]"
+                              onClick={() => setDeleteCandidate(candidate)}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </MDTableCell>
+                  </MDTableRow>
+                ))}
+              </MDTableBody>
+            </>
+          )}
+        </MDTable>
+      </div>
 
       <Dialog open={!!cvViewerCandidate} onOpenChange={(open) => !open && setCvViewerCandidate(null)}>
         <DialogContent className="max-w-3xl">
@@ -638,7 +627,6 @@ const InitialInterviewQualifiedPage = () => {
         open={detailModalOpen}
         onOpenChange={setDetailModalOpen}
       />
-    </div>
     </DashboardLayout>
   );
 };

@@ -265,13 +265,13 @@ const AdvancedSearch = () => {
     // Filter by minimum score
     if (minScore) {
       const scoreThreshold = parseFloat(minScore);
-      filtered = filtered.filter((c) => (c.ai_score || 0) >= scoreThreshold);
+      filtered = filtered.filter((c) => c.ai_score !== null && c.ai_score !== undefined && c.ai_score >= scoreThreshold);
     }
 
     // Filter by minimum experience
     if (minExperience) {
       const expThreshold = parseInt(minExperience);
-      filtered = filtered.filter((c) => (c.experience_years || 0) >= expThreshold);
+      filtered = filtered.filter((c) => c.experience_years !== null && c.experience_years !== undefined && c.experience_years >= expThreshold);
     }
 
     // Filter by skill
@@ -297,11 +297,11 @@ const AdvancedSearch = () => {
   const getSourceBadgeColor = (source: string) => {
     switch (source) {
       case "candidates":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
+        return "bg-blue-500 text-white dark:bg-blue-600 dark:text-white";
       case "Shortlisted":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+        return "bg-green-500 text-white dark:bg-green-600 dark:text-white";
       case "Final Interview":
-        return "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200";
+        return "bg-orange-500 text-white dark:bg-orange-600 dark:text-white";
       default:
         return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200";
     }

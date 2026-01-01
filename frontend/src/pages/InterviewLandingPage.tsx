@@ -148,7 +148,7 @@ const InterviewLandingPage = () => {
             {/* Left side - Info */}
             <div className="space-y-6">
               <div className="inline-block">
-                <div className="bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 ring-1 ring-primary/15">
+                <div className="bg-primary text-white px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 ring-1 ring-primary">
                   <Sparkles className="w-4 h-4" />
                   AI-Powered Interviews
                 </div>

@@ -2,17 +2,9 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Calendar, ArrowLeft, Mail, Clock, Loader2, Video } from "lucide-react";
+import { MDTable, MDTableHeader, MDTableHeaderCell, MDTableBody, MDTableRow, MDTableCell } from "@/components/ui/MDTable";
+import { Calendar, Mail, Clock, Loader2, Video, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import DashboardLayout from "@/components/DashboardLayout";
 
@@ -89,24 +81,24 @@ const ScheduledInterviewsPage = () => {
     });
   };
 
-  const getStatusColor = (status: string | null) => {
+  const getStatusBadge = (status: string | null) => {
     switch (status?.toLowerCase()) {
       case "scheduled":
-        return "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-700";
+        return <Badge className="bg-[#1A73E8]/10 text-[#1A73E8] border border-[#1A73E8]/20">Scheduled</Badge>;
       case "confirmed":
-        return "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-200 dark:border-green-700";
+        return <Badge className="bg-[#4CAF50]/10 text-[#4CAF50] border border-[#4CAF50]/20">Confirmed</Badge>;
       case "pending":
-        return "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 border-yellow-200 dark:border-yellow-700";
+        return <Badge className="bg-[#fb8c00]/10 text-[#fb8c00] border border-[#fb8c00]/20">Pending</Badge>;
       default:
-        return "bg-muted text-muted-foreground border-border";
+        return <Badge className="bg-[#7b809a]/10 text-[#7b809a] border border-[#7b809a]/20">Scheduled</Badge>;
     }
   };
 
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="min-h-screen bg-[var(--gradient-subtle)] flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="min-h-screen bg-[#f0f2f5] flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-[#e91e63]" />
         </div>
       </DashboardLayout>
     );
@@ -114,103 +106,115 @@ const ScheduledInterviewsPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-[var(--gradient-subtle)]">
-        <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Card className="shadow-elegant">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>All Scheduled Interviews</span>
-              <Badge variant="secondary">{meetings.length} Total</Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {meetings.length === 0 ? (
-              <div className="text-center py-12">
-                <Calendar className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No Scheduled Interviews</h3>
-                <p className="text-muted-foreground">
-                  Schedule interviews with qualified candidates
-                </p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Candidate</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Job Position</TableHead>
-                      <TableHead>Meeting Time</TableHead>
-                      <TableHead>Duration</TableHead>
-                      <TableHead>AI Score</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {meetings.map((meeting) => (
-                      <TableRow key={meeting.id}>
-                        <TableCell className="font-semibold">
-                          {meeting.candidate_name}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1 text-sm">
-                            <Mail className="h-3 w-3" />
-                            <a
-                              href={`mailto:${meeting.candidate_email}`}
-                              className="hover:text-primary"
-                            >
-                              {meeting.candidate_email}
-                            </a>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {meeting.job_title || <span className="text-xs text-muted-foreground">-</span>}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1 text-sm">
-                            <Clock className="h-3 w-3" />
-                            {formatDateTime(meeting.meeting_date)}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{meeting.meeting_duration} min</Badge>
-                        </TableCell>
-                        <TableCell>
-                          {meeting.ai_score ? (
-                            <span className="font-semibold">{meeting.ai_score}%</span>
-                          ) : (
-                            <span className="text-xs text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="outline"
-                            className={getStatusColor(meeting.meeting_status)}
-                          >
-                            {meeting.meeting_status || "Scheduled"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => window.open(meeting.meeting_link, "_blank")}
-                          >
-                            <Video className="h-4 w-4 mr-1" />
-                            Join
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </main>
-    </div>
+      <div className="min-h-screen bg-[#f0f2f5] p-6">
+        {/* Page Header - Material Dashboard Style */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-[#344767] mb-2">Scheduled Interviews</h1>
+          <p className="text-sm font-light text-[#7b809a]">
+            All scheduled interviews with candidates
+          </p>
+        </div>
+
+        <MDTable
+          title="All Scheduled Interviews"
+          headerActions={
+            <Badge className="bg-gradient-to-br from-[#1A73E8] to-[#49a3f1] text-white border-0 shadow-blue">
+              {meetings.length} Total
+            </Badge>
+          }
+        >
+          {meetings.length === 0 ? (
+            <tbody>
+              <tr>
+                <td colSpan={8}>
+                  <div className="text-center py-12">
+                    <Calendar className="h-16 w-16 text-[#7b809a] mx-auto mb-4 opacity-50" />
+                    <h3 className="text-lg font-semibold text-[#344767] mb-2">No Scheduled Interviews</h3>
+                    <p className="text-sm font-light text-[#7b809a]">
+                      Schedule interviews with qualified candidates
+                    </p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          ) : (
+            <>
+              <MDTableHeader>
+                <MDTableHeaderCell>Candidate</MDTableHeaderCell>
+                <MDTableHeaderCell>Email</MDTableHeaderCell>
+                <MDTableHeaderCell>Job Position</MDTableHeaderCell>
+                <MDTableHeaderCell>Meeting Time</MDTableHeaderCell>
+                <MDTableHeaderCell>Duration</MDTableHeaderCell>
+                <MDTableHeaderCell>AI Score</MDTableHeaderCell>
+                <MDTableHeaderCell>Status</MDTableHeaderCell>
+                <MDTableHeaderCell>Actions</MDTableHeaderCell>
+              </MDTableHeader>
+              <MDTableBody>
+                {meetings.map((meeting) => (
+                  <MDTableRow key={meeting.id}>
+                    <MDTableCell>
+                      <span className="font-semibold text-[#344767]">{meeting.candidate_name}</span>
+                    </MDTableCell>
+                    <MDTableCell>
+                      <div className="flex items-center gap-2 text-sm text-[#7b809a]">
+                        <Mail className="h-3.5 w-3.5 flex-shrink-0" />
+                        <a
+                          href={`mailto:${meeting.candidate_email}`}
+                          className="hover:text-[#e91e63] truncate"
+                        >
+                          {meeting.candidate_email}
+                        </a>
+                      </div>
+                    </MDTableCell>
+                    <MDTableCell>
+                      {meeting.job_title ? (
+                        <span className="text-sm text-[#344767]">{meeting.job_title}</span>
+                      ) : (
+                        <span className="text-xs text-[#7b809a]">-</span>
+                      )}
+                    </MDTableCell>
+                    <MDTableCell>
+                      <div className="flex items-center gap-2 text-sm text-[#344767]">
+                        <Clock className="h-3.5 w-3.5 text-[#7b809a]" />
+                        {formatDateTime(meeting.meeting_date)}
+                      </div>
+                    </MDTableCell>
+                    <MDTableCell>
+                      <Badge className="bg-[#7b809a]/10 text-[#7b809a] border border-[#7b809a]/20">
+                        {meeting.meeting_duration} min
+                      </Badge>
+                    </MDTableCell>
+                    <MDTableCell>
+                      {meeting.ai_score ? (
+                        <div className="flex items-center gap-2">
+                          <Star className="h-4 w-4 fill-[#fb8c00] text-[#fb8c00]" />
+                          <span className="font-bold text-lg text-[#344767]">{meeting.ai_score}%</span>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-[#7b809a]">-</span>
+                      )}
+                    </MDTableCell>
+                    <MDTableCell>
+                      {getStatusBadge(meeting.meeting_status)}
+                    </MDTableCell>
+                    <MDTableCell>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => window.open(meeting.meeting_link, "_blank")}
+                        className="hover:bg-[#e91e63]/10 hover:text-[#e91e63] text-[#7b809a]"
+                      >
+                        <Video className="h-4 w-4 mr-1" />
+                        Join
+                      </Button>
+                    </MDTableCell>
+                  </MDTableRow>
+                ))}
+              </MDTableBody>
+            </>
+          )}
+        </MDTable>
+      </div>
     </DashboardLayout>
   );
 };

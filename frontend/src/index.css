@@ -9,75 +9,101 @@
 
 @layer base {
   :root {
-    /* Core Colors - Professional Blue Theme */
-    --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    /* Core Colors - Material Dashboard Pink/Purple Theme */
+    --background: 210 40% 96%;  /* #f0f2f5 - Light gray background */
+    --foreground: 215 25% 27%;  /* #344767 - Dark blue-gray text */
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 215 25% 27%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 215 25% 27%;
 
-    --primary: 217 91% 60%;
+    --primary: 339 82% 52%;  /* #e91e63 - Material Dashboard Pink */
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 217 91% 65%;
+    --primary-glow: 339 82% 60%;
 
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 220 9% 55%;  /* #7b809a - Gray-blue */
+    --secondary-foreground: 0 0% 100%;
 
     --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted-foreground: 220 9% 55%;
 
-    --accent: 199 89% 48%;
+    --accent: 211 100% 50%;  /* #1A73E8 - Info Blue */
     --accent-foreground: 0 0% 100%;
-    --accent-glow: 199 89% 55%;
+    --accent-glow: 211 100% 60%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 4 90% 58%;  /* #F44335 - Error Red */
     --destructive-foreground: 0 0% 100%;
 
-    --success: 142 76% 36%;
+    --success: 122 39% 49%;  /* #4CAF50 - Success Green */
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 222 47% 11%;
+    --warning: 29 100% 49%;  /* #fb8c00 - Warning Orange */
+    --warning-foreground: 0 0% 100%;
+
+    --info: 211 100% 50%;  /* #1A73E8 - Info Blue */
+    --info-foreground: 0 0% 100%;
+
+    --dark: 215 25% 27%;  /* #344767 - Dark blue-gray */
+    --dark-foreground: 0 0% 100%;
+
+    --light: 210 40% 96%;  /* #f0f2f5 - Light gray */
+    --light-foreground: 215 25% 27%;
 
     --border: 214 32% 91%;
     --input: 214 32% 91%;
-    --ring: 217 91% 60%;
+    --ring: 339 82% 52%;
 
-    --radius: 0.75rem;
-    
-    /* Enhanced Gradients - Blue Theme */
-    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(199 89% 48%));
+    --radius: 1rem;  /* Material Dashboard uses more rounded corners */
+
+    /* Material Dashboard Gradients */
+    --gradient-primary: linear-gradient(195deg, #EC407A, #D81B60);
+    --gradient-secondary: linear-gradient(195deg, #747b8a, #495361);
+    --gradient-info: linear-gradient(195deg, #49a3f1, #1A73E8);
+    --gradient-success: linear-gradient(195deg, #66BB6A, #43A047);
+    --gradient-warning: linear-gradient(195deg, #FFA726, #FB8C00);
+    --gradient-error: linear-gradient(195deg, #EF5350, #E53935);
+    --gradient-dark: linear-gradient(195deg, #42424a, #191919);
+    --gradient-light: linear-gradient(195deg, #EBEFF4, #CED4DA);
+
+    /* Hero and subtle gradients */
     --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%), hsl(210 40% 98%));
-    --gradient-hero: linear-gradient(135deg, hsl(217 91% 96%), hsl(199 89% 96%));
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(210 40% 99%));
-    
-    /* Enhanced Shadows - Blue Theme */
-    --shadow-elegant: 0 10px 40px -10px hsl(217 91% 60% / 0.12), 0 0 0 1px hsl(217 91% 60% / 0.05);
-    --shadow-glow: 0 0 30px hsl(217 91% 60% / 0.15), 0 0 60px hsl(217 91% 60% / 0.08);
-    --shadow-accent: 0 0 30px hsl(199 89% 48% / 0.15), 0 0 60px hsl(199 89% 48% / 0.08);
-    --shadow-card: 0 4px 20px -4px hsl(222 47% 11% / 0.06), 0 0 0 1px hsl(214 32% 91% / 0.4);
-    --shadow-card-hover: 0 8px 30px -6px hsl(217 91% 60% / 0.1), 0 0 0 1px hsl(217 91% 60% / 0.08);
-    --shadow-button: 0 4px 12px -2px hsl(217 91% 60% / 0.15);
-    --shadow-button-hover: 0 6px 20px -4px hsl(217 91% 60% / 0.2);
-    --shadow-elevated: 0 20px 60px -12px hsl(222 47% 11% / 0.1);
-    
+    --gradient-hero: linear-gradient(135deg, rgba(233, 30, 99, 0.1), rgba(26, 115, 232, 0.1));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(0 0% 100%));
+
+    /* Material Dashboard Shadows */
+    --shadow-elegant: 0 4px 20px -4px rgba(0, 0, 0, 0.15);
+    --shadow-glow: 0 8px 26px -4px rgba(233, 30, 99, 0.15);
+    --shadow-accent: 0 8px 26px -4px rgba(26, 115, 232, 0.15);
+    --shadow-card: 0 4px 20px -4px rgba(0, 0, 0, 0.1);
+    --shadow-card-hover: 0 8px 30px -6px rgba(233, 30, 99, 0.2);
+    --shadow-button: 0 4px 12px -2px rgba(233, 30, 99, 0.3);
+    --shadow-button-hover: 0 6px 20px -4px rgba(233, 30, 99, 0.4);
+    --shadow-elevated: 0 20px 27px -8px rgba(0, 0, 0, 0.15);
+
+    /* Colored Shadows - Material Dashboard signature feature */
+    --shadow-pink: 0 4px 20px -2px rgba(233, 30, 99, 0.42);
+    --shadow-blue: 0 4px 20px -2px rgba(26, 115, 232, 0.42);
+    --shadow-green: 0 4px 20px -2px rgba(76, 175, 80, 0.42);
+    --shadow-orange: 0 4px 20px -2px rgba(251, 140, 0, 0.42);
+    --shadow-red: 0 4px 20px -2px rgba(244, 67, 53, 0.42);
+    --shadow-dark-color: 0 4px 20px -2px rgba(52, 71, 103, 0.42);
+
     /* Simple Transitions */
     --transition-smooth: all 0.2s ease;
     --transition-bounce: all 0.2s ease;
 
-    /* Sidebar */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 222 47% 11%;
-    --sidebar-primary: 222 47% 11%;
+    /* Sidebar - Material Dashboard style */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 9% 55%;
+    --sidebar-primary: 215 25% 27%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 217 91% 60% / 0.08;
-    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-accent: 339 82% 52% / 0.12;
+    --sidebar-accent-foreground: 339 82% 52%;
     --sidebar-border: 214 32% 91%;
-    --sidebar-ring: 217 91% 60%;
-    
+    --sidebar-ring: 339 82% 52%;
+
     /* Mobile safe area insets */
     --safe-area-inset-top: env(safe-area-inset-top, 0px);
     --safe-area-inset-right: env(safe-area-inset-right, 0px);

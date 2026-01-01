@@ -199,6 +199,13 @@ const DashboardSidebar = ({
         height: '100%',
       }}
     >
+      {/* Overlay to reduce image visibility - matching main background opacity */}
+      <div 
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.92)',
+        }}
+      />
       <SidebarHeader className={`p-5 border-b-2 border-border/60 relative shrink-0 bg-card/30 backdrop-blur-sm ${isCollapsed ? 'p-3 flex justify-center items-center' : ''}`} style={{ zIndex: 1 }}>
         <Link to="/" className={`flex items-center group transition-all duration-200 ${isCollapsed ? 'justify-center' : 'gap-3'}`}>
           {isCollapsed ? (

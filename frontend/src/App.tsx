@@ -22,7 +22,6 @@ import PublicUpload from "./pages/PublicUpload";
 import GmailImport from "./pages/GmailImport";
 import Interviews from "./pages/Interviews";
 import ConnectLinkedin from "./pages/ConnectLinkedIn";
-import { getLinkedInJobDetails } from "./lib/linkedinScraper";
 import GmailCallback from "./pages/GmailCallback";
 import LinkedinCallback from "./pages/LinkedInCallback";
 import IntegrationsSettings from "./pages/IntegrationsSettings";
@@ -65,8 +64,10 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 30000, // 30 seconds - data is fresh for 30s
-      cacheTime: 300000, // 5 minutes - keep in cache for 5min
+      gcTime: 300000, // 5 minutes - keep in cache for 5min (formerly cacheTime)
       refetchOnWindowFocus: false, // Don't refetch on window focus
+      refetchOnMount: false, // Don't refetch on component mount if data exists
+      refetchOnReconnect: false, // Don't refetch on reconnect
       retry: 1, // Only retry once on failure
     },
   },

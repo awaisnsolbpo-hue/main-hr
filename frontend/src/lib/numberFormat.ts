@@ -80,3 +80,78 @@ export const formatScore = (value: number | null | undefined): string => {
   return formatPercentage(value);
 };
 
+/**
+ * Format a value for display: 0 → "0", null/empty → "null" or "empty"
+ * @param value - The value to format (number, string, null, undefined)
+ * @param emptyText - Text to show for empty values (default: "null")
+ * @returns Formatted string
+ */
+export const formatDisplayValue = (value: number | string | null | undefined, emptyText: 'null' | 'empty' = 'null'): string => {
+  // Handle null or undefined
+  if (value === null || value === undefined) {
+    return emptyText;
+  }
+  
+  // Handle numeric zero - return "0" not "zero"
+  if (typeof value === 'number' && value === 0) {
+    return '0';
+  }
+  
+  // Handle empty string
+  if (typeof value === 'string' && value.trim() === '') {
+    return emptyText;
+  }
+  
+  // Handle NaN
+  if (typeof value === 'number' && isNaN(value)) {
+    return emptyText;
+  }
+  
+  // Return the value as-is for valid numbers and non-empty strings
+  return String(value);
+};
+
+/**
+ * Format a numeric value for display: 0 → "0", null/empty → "null" or "empty"
+ * @param value - The numeric value
+ * @param emptyText - Text to show for empty values (default: "null")
+ * @param decimals - Number of decimal places (default: 0)
+ * @returns Formatted string
+ */
+export const formatNumericDisplay = (value: number | null | undefined, emptyText: 'null' | 'empty' = 'null', decimals: number = 0): string => {
+  // Handle null or undefined
+  if (value === null || value === undefined) {
+    return emptyText;
+  }
+  
+  // Handle NaN
+  if (isNaN(value)) {
+    return emptyText;
+  }
+  
+  // Handle zero - return "0" not "zero"
+  if (value === 0) {
+    return '0';
+  }
+  
+  // Format the number with specified decimals
+  if (decimals === 0) {
+    return Math.round(value).toString();
+  }
+  
+  return value.toFixed(decimals);
+};
+
+/**
+ * Format a string value for display: empty → "null" or "empty"
+ * @param value - The string value
+ * @param emptyText - Text to show for empty values (default: "null")
+ * @returns Formatted string
+ */
+export const formatStringDisplay = (value: string | null | undefined, emptyText: 'null' | 'empty' = 'null'): string => {
+  if (!value || value.trim() === '') {
+    return emptyText;
+  }
+  return value;
+};
+

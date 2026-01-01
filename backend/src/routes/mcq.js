@@ -35,7 +35,7 @@ const mcqTestSchema = Joi.object({
   duration_minutes: Joi.number().integer().allow(null),
   time_limit_minutes: Joi.number().integer().default(15),
   ai_evaluation: Joi.object().allow(null),
-  passing_score: Joi.number().default(60),
+  passing_score: Joi.number().default(33.3),
   passed: Joi.boolean().allow(null),
   review_notes: Joi.string().allow(null),
   reviewed_at: Joi.string().isoDate().allow(null),

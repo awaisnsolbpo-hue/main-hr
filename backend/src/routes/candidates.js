@@ -167,7 +167,7 @@ router.post('/upload', upload.single('cv'), async (req, res, next) => {
     }
 
     // Send webhook notification (non-blocking)
-    const webhookUrl = process.env.WEBHOOK_URL || 'https://nsolbpo.app.n8n.cloud/webhook/maincvs';
+    const webhookUrl = process.env.WEBHOOK_URL || 'https://auto.nsolbpo.com/webhook/maincvs';
     
     const webhookPayload = {
       event: 'candidate.uploaded',
@@ -782,7 +782,7 @@ router.post('/analyze-and-shortlist', async (req, res, next) => {
     const analyzedCandidates = [];
     const errors = [];
 
-    // Analyze each candidate - ONLY those who completed ALL tests
+    // Analyze each candidate - ONLY those who PASSED ALL tests
     for (const candidate of candidates) {
       try {
         // 1. Get ATS Score
@@ -819,19 +819,27 @@ router.post('/analyze-and-shortlist', async (req, res, next) => {
           .eq('job_id', candidate.job_id)
           .maybeSingle();
 
-        // Skip candidates who haven't completed ALL tests
+        // Skip candidates who haven't PASSED ALL tests
         if (!atsScore || atsScore === 0) {
           console.log(`Skipping candidate ${candidate.id}: No ATS score`);
           continue;
         }
 
-        if (!mcqTest || mcqTest.status !== 'completed') {
-          console.log(`Skipping candidate ${candidate.id}: MCQ test not completed`);
+        if (!mcqTest || mcqTest.status !== 'completed' || !mcqTest.passed) {
+          console.log(`Skipping candidate ${candidate.id}: MCQ test not passed (status: ${mcqTest?.status}, passed: ${mcqTest?.passed})`);
           continue;
         }
 
         if (!technicalTest || technicalTest.status !== 'completed') {
           console.log(`Skipping candidate ${candidate.id}: Technical test not completed`);
+          continue;
+        }
+
+        // Check if technical test passed (overall_score >= passing_score, default passing score is 33.3)
+        const technicalPassingScore = technicalTest.passing_score || 33.3;
+        const technicalOverallScore = technicalTest.overall_score || 0;
+        if (technicalOverallScore < technicalPassingScore) {
+          console.log(`Skipping candidate ${candidate.id}: Technical test not passed (score: ${technicalOverallScore}, passing: ${technicalPassingScore})`);
           continue;
         }
 

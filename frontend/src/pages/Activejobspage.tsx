@@ -2,19 +2,18 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Briefcase, ArrowLeft, Calendar, MapPin, DollarSign, Loader2, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import DashboardLayout from "@/components/DashboardLayout";
+import {
+  MDTable,
+  MDTableHeader,
+  MDTableHeaderCell,
+  MDTableBody,
+  MDTableRow,
+  MDTableCell
+} from "@/components/ui/MDTable";
 
 interface Job {
   id: string;
@@ -84,8 +83,8 @@ const ActiveJobsPage = () => {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="min-h-screen bg-[var(--gradient-subtle)] flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="min-h-screen bg-[#f0f2f5] flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-[#e91e63]" />
         </div>
       </DashboardLayout>
     );
@@ -93,125 +92,140 @@ const ActiveJobsPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-[var(--gradient-subtle)]">
-        {/* Main Content */}
-        <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Card className="shadow-elegant">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>All Active Jobs</span>
-              <Badge variant="secondary">{jobs.length} Total</Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {jobs.length === 0 ? (
-              <div className="text-center py-12">
-                <Briefcase className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No Active Jobs</h3>
-                <p className="text-muted-foreground mb-4">
-                  Create your first job posting to start hiring
-                </p>
-                <Button onClick={() => navigate("/create-job")}>
-                  Create Job
-                </Button>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Job Title</TableHead>
-                      <TableHead>Location</TableHead>
-                      <TableHead>Salary</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Level</TableHead>
-                      <TableHead>Posted</TableHead>
-                      <TableHead>Closes</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {jobs.map((job) => (
-                      <TableRow key={job.id}>
-                        <TableCell className="font-medium">
-                          <div>
-                            <p className="font-semibold">{job.title}</p>
-                            {job.description && (
-                              <p className="text-xs text-muted-foreground line-clamp-1 mt-1">
-                                {job.description.substring(0, 60)}...
-                              </p>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1 text-sm">
-                            <MapPin className="h-3 w-3" />
-                            {job.city && job.country
-                              ? `${job.city}, ${job.country}`
-                              : job.location || "Not specified"}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1 text-sm">
-                            <DollarSign className="h-3 w-3" />
-                            {job.salary_range || "Not specified"}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {job.job_type ? (
-                            <Badge variant="outline">{job.job_type}</Badge>
-                          ) : (
-                            <span className="text-xs text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {job.job_level ? (
-                            <Badge variant="secondary">{job.job_level}</Badge>
-                          ) : (
-                            <span className="text-xs text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Calendar className="h-3 w-3" />
-                            {formatDate(job.created_at)}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {job.close_date ? (
-                            <div className="text-sm">{formatDate(job.close_date)}</div>
-                          ) : (
-                            <span className="text-xs text-muted-foreground">No deadline</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="default"
-                            className="bg-green-100 text-green-800 border-green-200"
-                          >
-                            Active
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => navigate(`/job/${job.id}`)}
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </main>
-    </div>
+      <div className="min-h-screen bg-[#f0f2f5] p-6">
+        {/* Page Header - Material Dashboard Style */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-[#344767] mb-2">Active Jobs</h1>
+          <p className="text-sm font-light text-[#7b809a]">
+            Manage your active job postings
+          </p>
+        </div>
+
+        {/* Material Dashboard Table */}
+        <MDTable
+          title="All Active Jobs"
+          headerActions={
+            <Badge className="bg-gradient-to-br from-[#1A73E8] to-[#49a3f1] text-white border-0 shadow-blue">
+              {jobs.length} Total
+            </Badge>
+          }
+        >
+          {jobs.length === 0 ? (
+            <tbody>
+              <tr>
+                <td colSpan={9}>
+                  <div className="text-center py-12">
+                    <Briefcase className="h-16 w-16 text-[#7b809a] mx-auto mb-4 opacity-50" />
+                    <h3 className="text-lg font-semibold text-[#344767] mb-2">No Active Jobs</h3>
+                    <p className="text-sm font-light text-[#7b809a] mb-4">
+                      Create your first job posting to start hiring
+                    </p>
+                    <Button
+                      onClick={() => navigate("/recruiter/create-job")}
+                      className="bg-gradient-to-r from-[#EC407A] to-[#D81B60] text-white border-0 shadow-pink hover:shadow-md transition-all duration-200"
+                    >
+                      Create Job
+                    </Button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          ) : (
+            <>
+              <MDTableHeader>
+                <MDTableHeaderCell>Job Title</MDTableHeaderCell>
+                <MDTableHeaderCell>Location</MDTableHeaderCell>
+                <MDTableHeaderCell>Salary</MDTableHeaderCell>
+                <MDTableHeaderCell>Type</MDTableHeaderCell>
+                <MDTableHeaderCell>Level</MDTableHeaderCell>
+                <MDTableHeaderCell>Posted</MDTableHeaderCell>
+                <MDTableHeaderCell>Closes</MDTableHeaderCell>
+                <MDTableHeaderCell>Status</MDTableHeaderCell>
+                <MDTableHeaderCell>Actions</MDTableHeaderCell>
+              </MDTableHeader>
+              <MDTableBody>
+                {jobs.map((job) => (
+                  <MDTableRow key={job.id} onClick={() => navigate(`/job/${job.id}`)}>
+                    <MDTableCell>
+                      <div>
+                        <p className="text-sm font-semibold text-[#344767]">{job.title}</p>
+                        {job.description && (
+                          <p className="text-xs font-light text-[#7b809a] line-clamp-1 mt-1">
+                            {job.description.substring(0, 60)}...
+                          </p>
+                        )}
+                      </div>
+                    </MDTableCell>
+                    <MDTableCell>
+                      <div className="flex items-center gap-1 text-sm text-[#7b809a]">
+                        <MapPin className="h-3 w-3" />
+                        {job.city && job.country
+                          ? `${job.city}, ${job.country}`
+                          : job.location || "Not specified"}
+                      </div>
+                    </MDTableCell>
+                    <MDTableCell>
+                      <div className="flex items-center gap-1 text-sm text-[#7b809a]">
+                        <DollarSign className="h-3 w-3" />
+                        {job.salary_range || "Not specified"}
+                      </div>
+                    </MDTableCell>
+                    <MDTableCell>
+                      {job.job_type ? (
+                        <Badge className="bg-[#1A73E8]/10 text-[#1A73E8] border border-[#1A73E8]/20 hover:bg-[#1A73E8]/20">
+                          {job.job_type}
+                        </Badge>
+                      ) : (
+                        <span className="text-xs text-[#7b809a]">-</span>
+                      )}
+                    </MDTableCell>
+                    <MDTableCell>
+                      {job.job_level ? (
+                        <Badge className="bg-[#fb8c00]/10 text-[#fb8c00] border border-[#fb8c00]/20 hover:bg-[#fb8c00]/20">
+                          {job.job_level}
+                        </Badge>
+                      ) : (
+                        <span className="text-xs text-[#7b809a]">-</span>
+                      )}
+                    </MDTableCell>
+                    <MDTableCell>
+                      <div className="flex items-center gap-1 text-sm text-[#7b809a]">
+                        <Calendar className="h-3 w-3" />
+                        {formatDate(job.created_at)}
+                      </div>
+                    </MDTableCell>
+                    <MDTableCell>
+                      {job.close_date ? (
+                        <div className="text-sm font-light text-[#7b809a]">{formatDate(job.close_date)}</div>
+                      ) : (
+                        <span className="text-xs text-[#7b809a]">No deadline</span>
+                      )}
+                    </MDTableCell>
+                    <MDTableCell>
+                      <Badge className="bg-[#4CAF50] text-white border-0 hover:bg-[#43A047]">
+                        Active
+                      </Badge>
+                    </MDTableCell>
+                    <MDTableCell>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/job/${job.id}`);
+                        }}
+                        className="hover:bg-[#e91e63]/10 hover:text-[#e91e63]"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                      </Button>
+                    </MDTableCell>
+                  </MDTableRow>
+                ))}
+              </MDTableBody>
+            </>
+          )}
+        </MDTable>
+      </div>
     </DashboardLayout>
   );
 };

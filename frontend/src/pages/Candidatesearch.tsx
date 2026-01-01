@@ -212,16 +212,16 @@ const CandidateSearch = () => {
 
 
   const getScoreBadgeColor = (score: number) => {
-    if (score >= 80) return "bg-green-100 text-green-800";
-    if (score >= 60) return "bg-yellow-100 text-yellow-800";
+    if (score >= 80) return "bg-green-500 text-white";
+    if (score >= 60) return "bg-yellow-500 text-white";
     return "bg-muted text-muted-foreground";
   };
 
   const getSourceBadge = (source: string) => {
     const colors: Record<string, string> = {
-      candidates: "bg-blue-100 text-blue-800",
-      Shortlisted: "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary",
-      "Final Interview": "bg-green-100 text-green-800",
+      candidates: "bg-blue-500 text-white border-blue-600",
+      Shortlisted: "bg-primary text-white dark:bg-primary dark:text-white",
+      "Final Interview": "bg-green-500 text-white",
     };
     return colors[source] || "bg-gray-100 text-gray-800";
   };
@@ -503,7 +503,7 @@ const CandidateSearch = () => {
                               </div>
                               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                 <Users className="h-4 w-4" />
-                                {job.applicationCount || 0} applications
+                                {job.applicationCount !== null && job.applicationCount !== undefined ? job.applicationCount : 'null'} applications
                               </div>
                             </div>
                           </CardContent>
@@ -727,13 +727,13 @@ const CandidateSearch = () => {
 
           {/* Info Card */}
           {!searched && (
-            <Card className="bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
+            <Card className="bg-blue-500 dark:bg-blue-600 border-blue-600 dark:border-blue-700">
               <CardContent className="pt-6">
                 <div className="space-y-3">
-                  <h3 className="font-semibold text-blue-900 dark:text-blue-300">
+                  <h3 className="font-semibold text-white dark:text-white">
                     How LinkedIn-Style Search Works:
                   </h3>
-                  <ul className="list-disc list-inside space-y-2 text-sm text-blue-800 dark:text-blue-300">
+                  <ul className="list-disc list-inside space-y-2 text-sm text-white dark:text-white">
                     <li>
                       Search by job role (e.g., "AI Specialist", "Frontend Developer")
                     </li>

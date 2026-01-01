@@ -3,17 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { candidatesApi } from "@/services/api";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import {
   Users,
   ArrowLeft,
@@ -40,15 +31,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  MDDialog,
+  MDDialogContent,
+  MDDialogDescription,
+  MDDialogFooter,
+  MDDialogHeader,
+  MDDialogTitle,
+} from "@/components/ui/MDDialog";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import { MDInput } from "@/components/ui/MDInput";
 import { Textarea } from "@/components/ui/textarea";
 import {
   AlertDialog,
@@ -60,6 +51,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  MDTable,
+  MDTableHeader,
+  MDTableHeaderCell,
+  MDTableBody,
+  MDTableRow,
+  MDTableCell
+} from "@/components/ui/MDTable";
 
 interface Candidate {
   // Core fields from candidates table schema
@@ -223,7 +222,7 @@ const TotalCandidatesPage = () => {
   const getSourceColor = (source: string) => {
     switch (source) {
       case "candidates":
-        return "bg-blue-100 text-blue-800 border-blue-200";
+        return "bg-blue-500 text-white border-blue-600";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
@@ -443,8 +442,8 @@ const TotalCandidatesPage = () => {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="min-h-screen bg-[var(--gradient-subtle)] flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="min-h-screen bg-[#f0f2f5] flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-[#e91e63]" />
         </div>
       </DashboardLayout>
     );
@@ -452,87 +451,100 @@ const TotalCandidatesPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-[var(--gradient-subtle)]">
-        {/* Main Content */}
-        <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Card className="shadow-elegant">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>AI Hiring - All Candidates</span>
-              <Badge variant="secondary">{candidates.length} Total</Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {candidates.length === 0 ? (
-              <div className="text-center py-12">
-                <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No Candidates Yet</h3>
-                <p className="text-muted-foreground mb-4">
-                  Import candidates or wait for applications
-                </p>
-                <Button onClick={() => navigate("/import-candidates")}>
-                  Import Candidates
-                </Button>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Candidate</TableHead>
-                      <TableHead>Contact</TableHead>
-                      <TableHead>Source</TableHead>
-                      <TableHead>Job Applied</TableHead>
-                      <TableHead>AI Score</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Applied Date</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+      <div className="min-h-screen bg-[#f0f2f5] p-6">
+        {/* Page Header - Material Dashboard Style */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-[#344767] mb-2">All Candidates</h1>
+          <p className="text-sm font-light text-[#7b809a]">
+            Manage and review all candidates in your pipeline
+          </p>
+        </div>
+
+        {/* Material Dashboard Table */}
+        <MDTable
+          title="Candidate Database"
+          headerActions={
+            <Badge className="bg-gradient-to-br from-[#EC407A] to-[#D81B60] text-white border-0 shadow-pink">
+              {candidates.length} Total
+            </Badge>
+          }
+        >
+          {candidates.length === 0 ? (
+            <tbody>
+              <tr>
+                <td colSpan={8}>
+                  <div className="text-center py-12">
+                    <Users className="h-16 w-16 text-[#7b809a] mx-auto mb-4 opacity-50" />
+                    <h3 className="text-lg font-semibold text-[#344767] mb-2">No Candidates Yet</h3>
+                    <p className="text-sm font-light text-[#7b809a] mb-4">
+                      Import candidates or wait for applications
+                    </p>
+                    <Button
+                      onClick={() => navigate("/recruiter/import-candidates")}
+                      className="bg-gradient-to-r from-[#EC407A] to-[#D81B60] text-white border-0 shadow-pink hover:shadow-md transition-all duration-200"
+                    >
+                      Import Candidates
+                    </Button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          ) : (
+            <>
+              <MDTableHeader>
+                <MDTableHeaderCell>Candidate</MDTableHeaderCell>
+                <MDTableHeaderCell>Contact</MDTableHeaderCell>
+                <MDTableHeaderCell>Source</MDTableHeaderCell>
+                <MDTableHeaderCell>Job Applied</MDTableHeaderCell>
+                <MDTableHeaderCell>AI Score</MDTableHeaderCell>
+                <MDTableHeaderCell>Status</MDTableHeaderCell>
+                <MDTableHeaderCell>Applied Date</MDTableHeaderCell>
+                <MDTableHeaderCell>Actions</MDTableHeaderCell>
+              </MDTableHeader>
+              <MDTableBody>
                     {candidates.map((candidate) => (
-                      <TableRow key={candidate.id}>
-                        <TableCell>
+                      <MDTableRow key={candidate.id}>
+                        <MDTableCell>
                           <div className="flex items-center gap-3">
-                            <Avatar className="h-10 w-10">
-                              <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground">
+                            <Avatar className="h-10 w-10 border-2 border-[#e91e63]/20">
+                              <AvatarFallback className="bg-gradient-to-br from-[#EC407A] to-[#D81B60] text-white text-xs font-bold">
                                 {getInitials(candidate.name || candidate.full_name || candidate.email)}
                               </AvatarFallback>
                             </Avatar>
                             <div>
-                              <p className="font-semibold">{candidate.name || candidate.full_name || `${candidate.first_name || ''} ${candidate.last_name || ''}`.trim() || candidate.email}</p>
+                              <p className="text-sm font-semibold text-[#344767]">{candidate.name || candidate.full_name || `${candidate.first_name || ''} ${candidate.last_name || ''}`.trim() || candidate.email}</p>
                               {candidate.Stage && (
-                                <Badge variant="outline" className="text-xs mt-1">
+                                <Badge className="bg-[#1A73E8]/10 text-[#1A73E8] border border-[#1A73E8]/20 text-xs mt-1">
                                   {candidate.Stage}
                                 </Badge>
                               )}
                             </div>
                           </div>
-                        </TableCell>
-                        <TableCell>
+                        </MDTableCell>
+                        <MDTableCell>
                           <div className="space-y-1">
-                            <div className="flex items-center gap-1 text-sm">
+                            <div className="flex items-center gap-1 text-sm text-[#7b809a]">
                               <Mail className="h-3 w-3" />
                               <a
                                 href={`mailto:${candidate.email}`}
-                                className="hover:text-primary"
+                                className="hover:text-[#e91e63] transition-colors"
                               >
                                 {candidate.email}
                               </a>
                             </div>
                             {candidate.phone && (
-                              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                              <div className="flex items-center gap-1 text-sm text-[#7b809a]">
                                 <Phone className="h-3 w-3" />
                                 {candidate.phone}
                               </div>
                             )}
                             {(candidate.location || candidate.city || candidate.state || candidate.country) && (
-                              <div className="text-xs text-muted-foreground">
+                              <div className="text-xs font-light text-[#7b809a]">
                                 {[candidate.city, candidate.state, candidate.country].filter(Boolean).join(', ') || candidate.location}
                               </div>
                             )}
                             {candidate.experience_years !== null && candidate.experience_years !== undefined && (
-                              <div className="text-xs text-muted-foreground">
+                              <div className="text-xs font-light text-[#7b809a]">
                                 {candidate.experience_years} {candidate.experience_years === 1 ? 'year' : 'years'} exp
                               </div>
                             )}
@@ -542,7 +554,7 @@ const TotalCandidatesPage = () => {
                                   href={candidate.linkedin_url}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-xs text-blue-600 hover:underline"
+                                  className="text-xs text-[#1A73E8] hover:underline"
                                 >
                                   LinkedIn
                                 </a>
@@ -552,7 +564,7 @@ const TotalCandidatesPage = () => {
                                   href={candidate.github_url}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-xs text-gray-600 hover:underline"
+                                  className="text-xs text-[#344767] hover:underline"
                                 >
                                   GitHub
                                 </a>
@@ -562,100 +574,100 @@ const TotalCandidatesPage = () => {
                                   href={candidate.portfolio_url}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-xs text-primary hover:underline"
+                                  className="text-xs text-[#e91e63] hover:underline"
                                 >
                                   Portfolio
                                 </a>
                               )}
                             </div>
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className={getSourceColor(candidate.source)}>
+                        </MDTableCell>
+                        <MDTableCell>
+                          <Badge className="bg-[#1A73E8]/10 text-[#1A73E8] border border-[#1A73E8]/20">
                             {candidate.source}
                           </Badge>
-                        </TableCell>
-                        <TableCell>
+                        </MDTableCell>
+                        <MDTableCell>
                           {candidate.job_title ? (
-                            <div className="flex items-center gap-1 text-sm">
+                            <div className="flex items-center gap-1 text-sm text-[#7b809a]">
                               <Briefcase className="h-3 w-3" />
                               {candidate.job_title}
                             </div>
                           ) : (
-                            <span className="text-xs text-muted-foreground">-</span>
+                            <span className="text-xs text-[#7b809a]">-</span>
                           )}
-                        </TableCell>
-                        <TableCell>
+                        </MDTableCell>
+                        <MDTableCell>
                           <div className="flex flex-col gap-1">
                             {getScore(candidate) !== null ? (
                               <div className="flex items-center gap-1">
-                                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                                <span className="font-semibold">{getScore(candidate)}%</span>
+                                <Star className="h-3 w-3 fill-[#fb8c00] text-[#fb8c00]" />
+                                <span className="text-sm font-semibold text-[#344767]">{getScore(candidate)}%</span>
                               </div>
                             ) : (
-                              <span className="text-xs text-muted-foreground">-</span>
+                              <span className="text-xs text-[#7b809a]">-</span>
                             )}
                             {candidate.ats_recommendation && (
-                              <span className="text-xs text-muted-foreground">
+                              <span className="text-xs font-light text-[#7b809a]">
                                 {candidate.ats_recommendation}
                               </span>
                             )}
                             {candidate.skills && candidate.skills.length > 0 && (
                               <div className="flex flex-wrap gap-1 mt-1">
                                 {candidate.skills.slice(0, 3).map((skill: string, idx: number) => (
-                                  <Badge key={idx} variant="outline" className="text-xs">
+                                  <Badge key={idx} className="bg-[#4CAF50]/10 text-[#4CAF50] border border-[#4CAF50]/20 text-xs">
                                     {skill}
                                   </Badge>
                                 ))}
                                 {candidate.skills.length > 3 && (
-                                  <Badge variant="outline" className="text-xs">
+                                  <Badge className="bg-[#7b809a]/10 text-[#7b809a] border border-[#7b809a]/20 text-xs">
                                     +{candidate.skills.length - 3}
                                   </Badge>
                                 )}
                               </div>
                             )}
                           </div>
-                        </TableCell>
-                        <TableCell>
+                        </MDTableCell>
+                        <MDTableCell>
                           {candidate.interview_status ? (
-                            <Badge variant="secondary">{candidate.interview_status}</Badge>
+                            <Badge className="bg-[#1A73E8] text-white border-0 hover:bg-[#1662C4]">{candidate.interview_status}</Badge>
                           ) : (
-                            <Badge variant="outline">Pending</Badge>
+                            <Badge className="bg-[#7b809a]/10 text-[#7b809a] border border-[#7b809a]/20">Pending</Badge>
                           )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        </MDTableCell>
+                        <MDTableCell>
+                          <div className="flex items-center gap-1 text-sm text-[#7b809a]">
                             <Calendar className="h-3 w-3" />
                             {formatDate(candidate.created_at)}
                           </div>
-                        </TableCell>
-                        <TableCell>
+                        </MDTableCell>
+                        <MDTableCell>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
+                              <Button variant="ghost" size="icon" className="hover:bg-[#e91e63]/10 hover:text-[#e91e63]">
                                 <MoreVertical className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-64">
-                              <DropdownMenuLabel>Manage Candidate</DropdownMenuLabel>
+                            <DropdownMenuContent align="end" className="w-64 rounded-xl shadow-md-lg">
+                              <DropdownMenuLabel className="text-[#344767] font-bold">Manage Candidate</DropdownMenuLabel>
                               {candidate.cv_file_url ? (
-                                <DropdownMenuItem onClick={() => setCvViewerCandidate(candidate)}>
+                                <DropdownMenuItem onClick={() => setCvViewerCandidate(candidate)} className="text-[#7b809a] hover:text-[#344767] hover:bg-[#f0f2f5]">
                                   <Eye className="mr-2 h-4 w-4" />
                                   View CV
                                 </DropdownMenuItem>
                               ) : (
-                                <DropdownMenuItem disabled>
+                                <DropdownMenuItem disabled className="text-[#7b809a]">
                                   <Eye className="mr-2 h-4 w-4" />
                                   No CV Uploaded
                                 </DropdownMenuItem>
                               )}
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem onClick={() => setEditCandidate(candidate)}>
+                              <DropdownMenuSeparator className="bg-[#dee2e6]" />
+                              <DropdownMenuItem onClick={() => setEditCandidate(candidate)} className="text-[#7b809a] hover:text-[#344767] hover:bg-[#f0f2f5]">
                                 <PenSquare className="mr-2 h-4 w-4" />
                                 Edit Candidate
                               </DropdownMenuItem>
                               <DropdownMenuItem
-                                className="text-destructive focus:text-destructive"
+                                className="text-[#F44335] focus:text-[#F44335] hover:bg-[#F44335]/10"
                                 onClick={() => setDeleteCandidate(candidate)}
                               >
                                 <Trash2 className="mr-2 h-4 w-4" />
@@ -663,142 +675,152 @@ const TotalCandidatesPage = () => {
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
+                        </MDTableCell>
+                      </MDTableRow>
                     ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </main>
+                  </MDTableBody>
+            </>
+          )}
+        </MDTable>
+      </div>
 
-      <Dialog open={!!cvViewerCandidate} onOpenChange={(open) => !open && setCvViewerCandidate(null)}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>Candidate CV</DialogTitle>
-            <DialogDescription>
+      {/* Material Dashboard Modals */}
+      <MDDialog open={!!cvViewerCandidate} onOpenChange={(open) => !open && setCvViewerCandidate(null)}>
+        <MDDialogContent className="max-w-3xl">
+          <MDDialogHeader>
+            <MDDialogTitle>Candidate CV</MDDialogTitle>
+            <MDDialogDescription>
               {cvViewerCandidate?.name} &middot; {cvViewerCandidate?.email}
-            </DialogDescription>
-          </DialogHeader>
+            </MDDialogDescription>
+          </MDDialogHeader>
           <div className="space-y-4">
             {cvViewerCandidate?.cv_file_url ? (
-              <div className="h-[500px] rounded-md border">
+              <div className="h-[500px] rounded-xl border border-[#dee2e6]">
                 <iframe
                   src={cvViewerCandidate.cv_file_url}
                   title="Candidate CV"
-                  className="w-full h-full rounded-md"
+                  className="w-full h-full rounded-xl"
                 />
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">No CV uploaded for this candidate.</p>
+              <p className="text-sm font-light text-[#7b809a]">No CV uploaded for this candidate.</p>
             )}
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCvViewerCandidate(null)}>
+          <MDDialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setCvViewerCandidate(null)}
+              className="border-[#dee2e6] text-[#7b809a] hover:bg-[#f0f2f5]"
+            >
               Close
             </Button>
             {cvViewerCandidate?.cv_file_url && (
-              <Button onClick={() => handleDownloadCV(cvViewerCandidate.cv_file_url!)}>
+              <Button
+                onClick={() => handleDownloadCV(cvViewerCandidate.cv_file_url!)}
+                className="bg-gradient-to-r from-[#EC407A] to-[#D81B60] text-white border-0 shadow-pink hover:shadow-md transition-all duration-200"
+              >
                 <Download className="mr-2 h-4 w-4" />
                 Download CV
               </Button>
             )}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </MDDialogFooter>
+        </MDDialogContent>
+      </MDDialog>
 
-      <Dialog open={!!editCandidate} onOpenChange={(open) => !open && setEditCandidate(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Candidate</DialogTitle>
-            <DialogDescription>Update the candidate information and save changes.</DialogDescription>
-          </DialogHeader>
+      <MDDialog open={!!editCandidate} onOpenChange={(open) => !open && setEditCandidate(null)}>
+        <MDDialogContent>
+          <MDDialogHeader>
+            <MDDialogTitle>Edit Candidate</MDDialogTitle>
+            <MDDialogDescription>Update the candidate information and save changes.</MDDialogDescription>
+          </MDDialogHeader>
           <div className="space-y-4">
+            <MDInput
+              label="Name"
+              id="edit-name"
+              value={editForm.name}
+              onChange={(e) => setEditForm((prev) => ({ ...prev, name: e.target.value }))}
+            />
+            <MDInput
+              label="Email"
+              id="edit-email"
+              type="email"
+              value={editForm.email}
+              onChange={(e) => setEditForm((prev) => ({ ...prev, email: e.target.value }))}
+            />
+            <MDInput
+              label="Phone"
+              id="edit-phone"
+              value={editForm.phone}
+              onChange={(e) => setEditForm((prev) => ({ ...prev, phone: e.target.value }))}
+            />
+            <MDInput
+              label="Interview Status"
+              id="edit-status"
+              value={editForm.interview_status}
+              onChange={(e) => setEditForm((prev) => ({ ...prev, interview_status: e.target.value }))}
+            />
+            <MDInput
+              label="AI Score"
+              id="edit-score"
+              value={editForm.ai_score}
+              onChange={(e) => setEditForm((prev) => ({ ...prev, ai_score: e.target.value }))}
+            />
             <div className="space-y-2">
-              <Label htmlFor="edit-name">Name</Label>
-              <Input
-                id="edit-name"
-                value={editForm.name}
-                onChange={(e) => setEditForm((prev) => ({ ...prev, name: e.target.value }))}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-email">Email</Label>
-              <Input
-                id="edit-email"
-                type="email"
-                value={editForm.email}
-                onChange={(e) => setEditForm((prev) => ({ ...prev, email: e.target.value }))}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-phone">Phone</Label>
-              <Input
-                id="edit-phone"
-                value={editForm.phone}
-                onChange={(e) => setEditForm((prev) => ({ ...prev, phone: e.target.value }))}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-status">Interview Status</Label>
-              <Input
-                id="edit-status"
-                value={editForm.interview_status}
-                onChange={(e) => setEditForm((prev) => ({ ...prev, interview_status: e.target.value }))}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-score">AI Score</Label>
-              <Input
-                id="edit-score"
-                value={editForm.ai_score}
-                onChange={(e) => setEditForm((prev) => ({ ...prev, ai_score: e.target.value }))}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-notes">Notes</Label>
+              <label className="block text-sm font-semibold text-[#344767]">Notes</label>
               <Textarea
                 id="edit-notes"
                 rows={4}
                 value={editForm.notes}
                 onChange={(e) => setEditForm((prev) => ({ ...prev, notes: e.target.value }))}
+                className="rounded-xl border-[#d2d6da] focus:border-[#e91e63] focus:ring-2 focus:ring-[#e91e63]/20"
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditCandidate(null)}>
+          <MDDialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setEditCandidate(null)}
+              className="border-[#dee2e6] text-[#7b809a] hover:bg-[#f0f2f5]"
+            >
               Cancel
             </Button>
-            <Button onClick={handleEditSubmit} disabled={editLoading}>
+            <Button
+              onClick={handleEditSubmit}
+              disabled={editLoading}
+              className="bg-gradient-to-r from-[#EC407A] to-[#D81B60] text-white border-0 shadow-pink hover:shadow-md transition-all duration-200"
+            >
               {editLoading ? "Saving..." : "Save changes"}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </MDDialogFooter>
+        </MDDialogContent>
+      </MDDialog>
 
       <AlertDialog open={!!deleteCandidate} onOpenChange={(open) => !open && setDeleteCandidate(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-2xl shadow-md-xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete candidate</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-xl font-bold text-[#344767]">Delete candidate</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm font-light text-[#7b809a]">
               This action cannot be undone. This will permanently remove{" "}
-              <span className="font-semibold">{deleteCandidate?.name}</span> from your candidates list.
+              <span className="font-semibold text-[#344767]">{deleteCandidate?.name}</span> from your candidates list.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setDeleteCandidate(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel
+              onClick={() => setDeleteCandidate(null)}
+              className="border-[#dee2e6] text-[#7b809a] hover:bg-[#f0f2f5]"
+            >
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteCandidateConfirm}
               disabled={actionLoadingId === deleteCandidate?.id}
+              className="bg-[#F44335] text-white hover:bg-[#E53935] border-0"
             >
               {actionLoadingId === deleteCandidate?.id ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
     </DashboardLayout>
   );
 };

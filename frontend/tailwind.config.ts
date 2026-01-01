@@ -46,6 +46,22 @@ module.exports = {
       minWidth: {
         'touch': '44px',
       },
+      // Material Dashboard box shadows
+      boxShadow: {
+        'md-xs': '0 2px 9px -5px rgba(0, 0, 0, 0.15)',
+        'md-sm': '0 4px 12px -4px rgba(0, 0, 0, 0.15)',
+        'md': '0 4px 20px -4px rgba(0, 0, 0, 0.15)',
+        'md-lg': '0 8px 26px -4px rgba(0, 0, 0, 0.15)',
+        'md-xl': '0 20px 27px -8px rgba(0, 0, 0, 0.15)',
+        'md-xxl': '0 23px 45px -11px rgba(0, 0, 0, 0.25)',
+        // Colored shadows for Material Dashboard
+        'pink': '0 4px 20px -2px rgba(233, 30, 99, 0.4)',
+        'blue': '0 4px 20px -2px rgba(26, 115, 232, 0.4)',
+        'green': '0 4px 20px -2px rgba(76, 175, 80, 0.4)',
+        'orange': '0 4px 20px -2px rgba(251, 140, 0, 0.4)',
+        'red': '0 4px 20px -2px rgba(244, 67, 53, 0.4)',
+        'dark': '0 4px 20px -2px rgba(52, 71, 103, 0.4)',
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',

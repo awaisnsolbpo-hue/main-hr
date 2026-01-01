@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 interface PipelineStage {
   label: string;
-  count: number;
+  count: number | null;
   color: string;
   filterKey?: string;
 }
@@ -51,7 +51,7 @@ export const PipelineFunnel = ({ stages, onStageClick }: PipelineFunnelProps) =>
     }
   };
 
-  const totalCandidates = stages.reduce((sum, stage) => sum + stage.count, 0);
+  const totalCandidates = stages.reduce((sum, stage) => sum + (stage.count ?? 0), 0);
 
   return (
     <Card className="border border-border/40 bg-card/50 backdrop-blur-sm shadow-md hover:shadow-lg transition-all duration-300">
@@ -78,7 +78,8 @@ export const PipelineFunnel = ({ stages, onStageClick }: PipelineFunnelProps) =>
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
             {stages.map((stage, index) => {
               const isLast = index === stages.length - 1;
-              const percentage = totalCandidates > 0 ? Math.round((stage.count / totalCandidates) * 100) : 0;
+              const stageCount = stage.count ?? 0;
+              const percentage = totalCandidates > 0 ? Math.round((stageCount / totalCandidates) * 100) : 0;
               
               return (
                 <div key={stage.label} className="relative">
@@ -117,7 +118,7 @@ export const PipelineFunnel = ({ stages, onStageClick }: PipelineFunnelProps) =>
                           className="text-3xl font-bold leading-none transition-transform group-hover:scale-105"
                           style={{ color: stage.color }}
                         >
-                          {stage.count}
+                          {stage.count !== null && stage.count !== undefined ? stage.count : 'null'}
                         </div>
                         {totalCandidates > 0 && (
                           <span className="text-xs font-medium text-muted-foreground">
@@ -171,7 +172,9 @@ export const PipelineFunnel = ({ stages, onStageClick }: PipelineFunnelProps) =>
           </div>
           <div className="h-3 rounded-full bg-muted/40 overflow-hidden flex gap-0.5">
             {stages.map((stage, index) => {
-              const width = totalCandidates > 0 ? (stage.count / totalCandidates) * 100 : 0;
+              const stageCount = stage.count ?? 0;
+              const width = totalCandidates > 0 ? (stageCount / totalCandidates) * 100 : 0;
+              const displayCount = stage.count !== null && stage.count !== undefined ? stage.count : 'null';
               return (
                 <div
                   key={stage.label}
@@ -179,14 +182,14 @@ export const PipelineFunnel = ({ stages, onStageClick }: PipelineFunnelProps) =>
                   style={{
                     width: `${width}%`,
                     backgroundColor: stage.color,
-                    opacity: stage.count > 0 ? 1 : 0.2,
+                    opacity: stageCount > 0 ? 1 : 0.2,
                   }}
-                  title={`${stage.label}: ${stage.count} (${totalCandidates > 0 ? Math.round((stage.count / totalCandidates) * 100) : 0}%)`}
+                  title={`${stage.label}: ${displayCount} (${totalCandidates > 0 ? Math.round((stageCount / totalCandidates) * 100) : 0}%)`}
                   onClick={() => handleStageClick(stage)}
                 >
                   {/* Tooltip on hover */}
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs font-medium text-white bg-foreground rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-                    {stage.label}: {stage.count}
+                    {stage.label}: {displayCount}
                   </div>
                 </div>
               );

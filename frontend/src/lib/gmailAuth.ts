@@ -2,11 +2,13 @@
 import { supabase } from "@/integrations/supabase/client";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-const GOOGLE_CLIENT_SECRET = import.meta.env.VITE_GOOGLE_CLIENT_SECRET;
 const REDIRECT_URI = import.meta.env.VITE_GOOGLE_REDIRECT_URI;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
-const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
+
+// SECURITY: Client secrets must NEVER be in frontend code
+// Token exchange is now handled by backend API
 
 // OAuth scopes needed for Gmail API
 const SCOPES = [
@@ -36,20 +38,28 @@ export const initiateGmailOAuth = () => {
 };
 
 /**
- * Exchanges authorization code for access token
+ * Exchanges authorization code for access token via backend API
+ * SECURITY: Token exchange must happen on backend with client secret
  */
 export const exchangeCodeForToken = async (code: string) => {
-    const response = await fetch(GOOGLE_TOKEN_URL, {
+    if (!API_BASE_URL) {
+        throw new Error("API_BASE_URL is not configured");
+    }
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+        throw new Error("User not authenticated");
+    }
+
+    const response = await fetch(`${API_BASE_URL}/oauth/google/exchange`, {
         method: "POST",
         headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${session.access_token}`,
         },
-        body: new URLSearchParams({
+        body: JSON.stringify({
             code,
-            client_id: GOOGLE_CLIENT_ID,
-            client_secret: GOOGLE_CLIENT_SECRET,
             redirect_uri: REDIRECT_URI,
-            grant_type: "authorization_code",
         }),
     });
 
@@ -156,17 +166,24 @@ export const getGmailAccessToken = async (): Promise<string> => {
                 throw new Error("No refresh token available");
             }
 
-            // Refresh the token
-            const response = await fetch(GOOGLE_TOKEN_URL, {
+            if (!API_BASE_URL) {
+                throw new Error("API_BASE_URL is not configured");
+            }
+
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                throw new Error("User not authenticated");
+            }
+
+            // Refresh the token via backend API
+            const response = await fetch(`${API_BASE_URL}/oauth/google/refresh`, {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${session.access_token}`,
                 },
-                body: new URLSearchParams({
-                    client_id: GOOGLE_CLIENT_ID,
-                    client_secret: GOOGLE_CLIENT_SECRET,
+                body: JSON.stringify({
                     refresh_token: profile.gmail_refresh_token,
-                    grant_type: "refresh_token",
                 }),
             });
 

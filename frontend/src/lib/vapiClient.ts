@@ -26,7 +26,7 @@ export const createVapiClient = async () => {
         console.log('✅ VAPI public key loaded from environment variable');
       } else {
         // Last resort fallback (should not be used in production)
-        cachedPublicKey = "b20ebfed-ff48-43f9-a287-84b64f553d14";
+        cachedPublicKey = "80089ea5-32df-4f12-b8cb-16d6611a5d5c";
         console.warn('⚠️ VAPI public key using hardcoded fallback (not recommended for production)');
       }
     }

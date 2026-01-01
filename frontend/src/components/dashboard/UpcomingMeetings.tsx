@@ -1,20 +1,27 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowRight, Calendar, Clock, Video, UserCheck } from "lucide-react";
+import { ArrowRight, Calendar, Clock, Video, Eye } from "lucide-react";
 import { format, formatDistanceToNow, isToday, isTomorrow } from "date-fns";
+import { MeetingDetailModal } from "./MeetingDetailModal";
 
 interface UpcomingMeeting {
   id: string;
   candidate_name: string;
   candidate_email: string;
+  candidate_phone?: string | null;
+  job_id?: string | null;
   job_title: string | null;
   meeting_date: string;
   meeting_duration: number;
   meeting_link?: string;
   meeting_status?: string;
+  instructions?: string | null;
   ai_score?: number | null;
+  cv_file_url?: string | null;
+  created_at?: string;
 }
 
 interface UpcomingMeetingsProps {
@@ -23,6 +30,8 @@ interface UpcomingMeetingsProps {
 }
 
 export const UpcomingMeetings = ({ meetings, loading = false }: UpcomingMeetingsProps) => {
+  const [selectedMeeting, setSelectedMeeting] = useState<UpcomingMeeting | null>(null);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
   const formatMeetingTime = (dateString: string) => {
     const date = new Date(dateString);
     const time = format(date, 'h:mm a');
@@ -109,11 +118,17 @@ export const UpcomingMeetings = ({ meetings, loading = false }: UpcomingMeetings
                       </a>
                     </Button>
                   )}
-                  <Button size="sm" variant="ghost" className="flex-1 text-xs" asChild>
-                    <Link to={`/candidates?email=${meeting.candidate_email}`}>
-                      <UserCheck className="h-3 w-3 mr-1" />
-                      View
-                    </Link>
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    className="flex-1 text-xs"
+                    onClick={() => {
+                      setSelectedMeeting(meeting);
+                      setDetailModalOpen(true);
+                    }}
+                  >
+                    <Eye className="h-3 w-3 mr-1" />
+                    View
                   </Button>
                 </div>
               </div>
@@ -133,6 +148,12 @@ export const UpcomingMeetings = ({ meetings, loading = false }: UpcomingMeetings
           </div>
         )}
       </CardContent>
+
+      <MeetingDetailModal
+        meeting={selectedMeeting}
+        open={detailModalOpen}
+        onOpenChange={setDetailModalOpen}
+      />
     </Card>
   );
 };

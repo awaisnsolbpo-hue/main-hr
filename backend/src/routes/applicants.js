@@ -455,7 +455,7 @@ router.post('/:id/apply-job', authMiddleware, requireRole('applicant'), async (r
     if (error) throw error;
 
     // Send webhook notification with all job_applications data (non-blocking)
-    const webhookUrl = process.env.WEBHOOK_URL || 'https://nsolbpo.app.n8n.cloud/webhook/maincvs';
+    const webhookUrl = process.env.WEBHOOK_URL || 'https://auto.nsolbpo.com/webhook/maincvs';
     
     const webhookPayload = {
       event: 'job_application.created',

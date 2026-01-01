@@ -2,8 +2,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Card, CardContent } from "@/components/ui/card";
-import { Upload, X, FileText, CheckCircle2, AlertCircle, Loader2, Trash2, User, Mail, MapPin, Briefcase, BookOpen } from "lucide-react";
+import { Upload, FileText, CheckCircle2, AlertCircle, Loader2, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { formatFileSize } from "@/lib/numberFormat";
@@ -12,22 +11,6 @@ interface FileUploadModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     jobId: string;
-}
-
-interface ExtractedCandidate {
-    first_name: string;
-    last_name: string;
-    email: string;
-    phone?: string;
-    location?: string;
-    skills?: string[];
-    experience_years?: number;
-    education?: {
-        degree: string;
-        field: string;
-        school?: string;
-    };
-    full_name?: string;
 }
 
 export const FileUploadModal = ({ open, onOpenChange, jobId }: FileUploadModalProps) => {
@@ -60,17 +43,6 @@ export const FileUploadModal = ({ open, onOpenChange, jobId }: FileUploadModalPr
     };
 
     const validateAndSetFile = (file: File) => {
-        // Accept any document type
-        // Common document extensions
-        const allowedExtensions = [
-            '.pdf', '.doc', '.docx', '.txt', '.rtf',
-            '.odt', '.pages', '.wps', '.xls', '.xlsx',
-            '.ppt', '.pptx', '.csv', '.html', '.htm'
-        ];
-        
-        const ext = file.name.substring(file.name.lastIndexOf(".")).toLowerCase();
-
-        // Allow any file type, but warn if it's not a common document type
         if (file.size > 10 * 1024 * 1024) {
             setUploadError("File size exceeds 10MB limit");
             toast({
@@ -116,7 +88,11 @@ export const FileUploadModal = ({ open, onOpenChange, jobId }: FileUploadModalPr
             formData.append("cv", selectedFile);
             formData.append("job_id", jobId);
 
-            const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
+            const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+            if (!apiBaseUrl) {
+                throw new Error('API_BASE_URL is not configured');
+            }
+
             const response = await fetch(
                 `${apiBaseUrl}/candidates/upload`,
                 {
@@ -144,10 +120,9 @@ export const FileUploadModal = ({ open, onOpenChange, jobId }: FileUploadModalPr
             setUploadSuccess(true);
             toast({
                 title: "File Uploaded!",
-                description: `File "${selectedFile.name}" has been uploaded and sent to webhook successfully`,
+                description: `File "${selectedFile.name}" has been uploaded successfully`,
             });
 
-            // Reset form after 3 seconds
             setTimeout(() => {
                 setSelectedFile(null);
                 setUploadSuccess(false);
@@ -175,30 +150,22 @@ export const FileUploadModal = ({ open, onOpenChange, jobId }: FileUploadModalPr
 
     return (
         <Dialog open={open} onOpenChange={handleClose}>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-lg">
                 <DialogHeader>
-                    <DialogTitle>Upload Candidate CVs</DialogTitle>
+                    <DialogTitle>Upload Candidate CV</DialogTitle>
                     <DialogDescription>
-                        Upload any document type - Files will be sent to the webhook
+                        Upload PDF, DOC, DOCX or other document files (max 10MB)
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="space-y-6">
-                    {/* Supported Formats Info */}
-                    <Alert className="bg-blue-50/80 border-2 border-blue-200/60 backdrop-blur-sm">
-                        <AlertCircle className="h-4 w-4 text-blue-600" />
-                        <AlertDescription className="text-blue-900 font-medium">
-                            All document types accepted (PDF, DOC, DOCX, TXT, XLS, XLSX, PPT, PPTX, etc.) - Max 10MB. Files will be sent to webhook.
-                        </AlertDescription>
-                    </Alert>
-
+                <div className="space-y-4 mt-4">
                     {/* File Upload Area */}
                     {!uploadSuccess && (
                         <div
-                            className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 ${
+                            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                                 dragActive
-                                    ? "border-primary bg-primary/10 shadow-lg scale-[1.02]"
-                                    : "border-border/60 bg-background/50 hover:border-primary/40 hover:bg-primary/5"
+                                    ? "border-primary bg-primary/5"
+                                    : "border-muted-foreground/25 hover:border-primary/50"
                             }`}
                             onDragEnter={handleDrag}
                             onDragLeave={handleDrag}
@@ -214,16 +181,17 @@ export const FileUploadModal = ({ open, onOpenChange, jobId }: FileUploadModalPr
                                 disabled={uploading}
                             />
                             <label htmlFor="cv-upload" className="cursor-pointer block">
-                                <Upload className="h-12 w-12 mx-auto mb-3 text-primary" />
-                                <p className="text-lg font-medium mb-1">
-                                    Drag and drop your CV here
+                                <Upload className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+                                <p className="font-medium mb-1">
+                                    Drag and drop your file here
                                 </p>
-                                <p className="text-sm text-muted-foreground mb-4">
-                                    or click to browse your computer
+                                <p className="text-sm text-muted-foreground">
+                                    or click to browse
                                 </p>
                             </label>
+                            
                             {selectedFile && (
-                                <div className="mt-4 p-4 bg-gradient-to-r from-primary/10 to-accent/10 rounded-xl border border-primary/20 flex items-center justify-between shadow-sm">
+                                <div className="mt-4 p-3 bg-muted/50 rounded-lg flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         <FileText className="h-5 w-5 text-primary" />
                                         <div className="text-left">
@@ -234,11 +202,12 @@ export const FileUploadModal = ({ open, onOpenChange, jobId }: FileUploadModalPr
                                         </div>
                                     </div>
                                     <button
-                                        onClick={() => {
+                                        onClick={(e) => {
+                                            e.preventDefault();
                                             setSelectedFile(null);
                                             setUploadError("");
                                         }}
-                                        className="text-destructive hover:text-destructive/80"
+                                        className="text-muted-foreground hover:text-destructive"
                                     >
                                         <Trash2 className="h-4 w-4" />
                                     </button>
@@ -257,35 +226,27 @@ export const FileUploadModal = ({ open, onOpenChange, jobId }: FileUploadModalPr
 
                     {/* Success Message */}
                     {uploadSuccess && (
-                        <Alert className="bg-green-50/80 border-2 border-green-200/60 backdrop-blur-sm">
+                        <Alert className="border-green-200 bg-green-50 dark:bg-green-950/20">
                             <CheckCircle2 className="h-4 w-4 text-green-600" />
-                            <AlertDescription className="text-green-900 font-medium">
-                                ✓ File uploaded successfully and sent to webhook!
+                            <AlertDescription className="text-green-800 dark:text-green-200">
+                                File uploaded successfully!
                             </AlertDescription>
                         </Alert>
                     )}
 
                     {/* Upload Summary */}
-                    {uploadedCount > 0 && !uploading && uploadSuccess && (
-                        <Alert className="bg-green-50/80 border-2 border-green-200/60 backdrop-blur-sm">
-                            <CheckCircle2 className="h-4 w-4 text-green-600" />
-                            <AlertDescription className="text-green-900 font-medium">
-                                ✓ {uploadedCount} file{uploadedCount !== 1 ? "s" : ""}{" "}
-                                uploaded successfully
-                            </AlertDescription>
-                        </Alert>
+                    {uploadedCount > 0 && uploadSuccess && (
+                        <p className="text-sm text-muted-foreground text-center">
+                            {uploadedCount} file{uploadedCount !== 1 ? "s" : ""} uploaded
+                        </p>
                     )}
 
                     {/* Action Buttons */}
                     <div className="flex gap-2">
                         {!uploadSuccess ? (
                             <>
-                                <Button
-                                    variant="outline"
-                                    onClick={handleClose}
-                                    disabled={uploading}
-                                >
-                                    Close
+                                <Button variant="outline" onClick={handleClose} disabled={uploading}>
+                                    Cancel
                                 </Button>
                                 <Button
                                     onClick={handleUpload}
@@ -300,7 +261,7 @@ export const FileUploadModal = ({ open, onOpenChange, jobId }: FileUploadModalPr
                                     ) : (
                                         <>
                                             <Upload className="mr-2 h-4 w-4" />
-                                            Upload File
+                                            Upload
                                         </>
                                     )}
                                 </Button>

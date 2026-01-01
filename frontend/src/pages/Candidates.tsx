@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import {
-    ArrowLeft,
     Search,
     Download,
     Calendar,
@@ -14,21 +12,32 @@ import {
     PenSquare,
     Trash2,
     FileText,
+    XCircle,
+    CheckCircle,
+    CheckCircle2,
+    Mail,
+    Phone,
+    Briefcase,
+    Star,
+    Loader2,
+    Users,
+    ArrowLeft,
 } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { candidatesApi } from "@/services/api";
 import DashboardLayout from "@/components/DashboardLayout";
-import DashboardHeader from "@/components/DashboardHeader";
-import PageBackground from "@/components/PageBackground";
+import { MDTable } from "@/components/ui/MDTable";
+import { MDInput } from "@/components/ui/MDInput";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import ScheduleMeetingDialog from "@/components/ScheduleMeetingDialog";
 import { CandidateDetailModal } from "@/components/candidates/CandidateDetailModal";
 import {
@@ -157,6 +166,8 @@ const Candidates = () => {
         ai_score: "",
         notes: "",
     });
+    const [statusFilter, setStatusFilter] = useState("all");
+    const [scoreFilter, setScoreFilter] = useState("all");
 
     const tableFilter = searchParams.get('table');
 
@@ -180,10 +191,29 @@ const Candidates = () => {
     useEffect(() => {
         let filtered = candidates;
 
+        // Source filter
         if (filterSource !== "all") {
             filtered = filtered.filter((c) => c.source === filterSource);
         }
 
+        // Status filter
+        if (statusFilter !== "all") {
+            filtered = filtered.filter((c) => {
+                const status = (c.interview_status || c.status || "").toLowerCase();
+                return status === statusFilter.toLowerCase();
+            });
+        }
+
+        // Score filter
+        if (scoreFilter !== "all") {
+            const minScore = parseInt(scoreFilter);
+            filtered = filtered.filter((c) => {
+                const score = getScore(c);
+                return score !== null && score >= minScore;
+            });
+        }
+
+        // Search filter
         if (searchQuery) {
             const query = searchQuery.toLowerCase();
             filtered = filtered.filter(
@@ -199,7 +229,7 @@ const Candidates = () => {
         }
 
         setFilteredCandidates(filtered);
-    }, [searchQuery, candidates, filterSource]);
+    }, [searchQuery, candidates, filterSource, statusFilter, scoreFilter]);
 
     const fetchCandidates = async () => {
         try {
@@ -226,7 +256,7 @@ const Candidates = () => {
                 // Map linkedin URL
                 linkedin_profile_url: c.linkedin_url || c.linkedin_profile_url || null,
                 // Set source and priority
-                source: "candidates" as const,
+                source: c.source || 'manual_upload',
                 stage_priority: 2,
                 // Ensure arrays are arrays
                 skills: Array.isArray(c.skills) ? c.skills : (c.skills ? [c.skills] : []),
@@ -236,7 +266,6 @@ const Candidates = () => {
                 ats_score: c.ats_score ? Number(c.ats_score) : null,
                 // Ensure status defaults
                 status: c.status || 'new',
-                source: c.source || 'manual_upload',
             }));
 
             setCandidates(loaded);
@@ -257,24 +286,48 @@ const Candidates = () => {
         setScheduleDialogOpen(true);
     };
 
-    const getInterviewStatusBadge = (status?: string) => {
-        if (!status) return <Badge variant="outline">Pending</Badge>;
+    const getInitials = (name: string) => {
+        return name
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .toUpperCase()
+            .slice(0, 2);
+    };
 
-        const variants: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
-            pending: "outline",
-            scheduled: "secondary",
-            completed: "default",
-            passed: "default",
-            failed: "destructive",
-        };
-        return <Badge variant={variants[status.toLowerCase()] || "outline"}>{status}</Badge>;
+    const getInterviewStatusBadge = (status?: string) => {
+        if (!status) return <Badge className="bg-[#7b809a]/10 text-[#7b809a] border border-[#7b809a]/20">Pending</Badge>;
+
+        const statusLower = status.toLowerCase();
+
+        if (statusLower.includes("pending")) {
+            return <Badge className="bg-[#fb8c00]/10 text-[#fb8c00] border border-[#fb8c00]/20">Pending</Badge>;
+        }
+        if (statusLower.includes("scheduled")) {
+            return <Badge className="bg-[#1A73E8]/10 text-[#1A73E8] border border-[#1A73E8]/20">Scheduled</Badge>;
+        }
+        if (statusLower.includes("completed") || statusLower.includes("passed")) {
+            return <Badge className="bg-[#4CAF50] text-white border-0"><CheckCircle className="h-3 w-3 mr-1" />Completed</Badge>;
+        }
+        if (statusLower.includes("failed")) {
+            return <Badge className="bg-[#F44335] text-white border-0"><XCircle className="h-3 w-3 mr-1" />Failed</Badge>;
+        }
+
+        return <Badge className="bg-[#7b809a]/10 text-[#7b809a] border border-[#7b809a]/20">{status}</Badge>;
+    };
+
+    const getScoreColor = (score: number | null) => {
+        if (!score) return "text-[#7b809a]";
+        if (score >= 80) return "text-[#4CAF50]";
+        if (score >= 60) return "text-[#fb8c00]";
+        return "text-[#F44335]";
     };
 
     const getSourceBadge = (source: Candidate['source']) => {
         const sourceConfig = {
-            'candidates': { variant: 'outline' as const, label: 'Candidate', color: 'bg-blue-100 text-blue-800' },
-            'Shortlisted': { variant: 'default' as const, label: 'Shortlisted', color: 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary' },
-            'Final Interview': { variant: 'secondary' as const, label: 'Final Interview', color: 'bg-green-100 text-green-800' }
+            'candidates': { variant: 'outline' as const, label: 'Candidate', color: 'bg-blue-500 text-white border-blue-600' },
+            'Shortlisted': { variant: 'default' as const, label: 'Shortlisted', color: 'bg-primary text-white dark:bg-primary dark:text-white' },
+            'Final Interview': { variant: 'secondary' as const, label: 'Final Interview', color: 'bg-green-500 text-white' }
         };
 
         const config = sourceConfig[source] || { variant: 'outline' as const, label: source || 'Unknown', color: 'bg-gray-100 text-gray-800' };
@@ -453,159 +506,275 @@ const Candidates = () => {
     // Background image for page
     const backgroundImage = "/assets/images/Whisk_579a33e11562e8e91524ff66af317885dr.jpeg";
 
+    // Calculate summary metrics
+    const totalCandidates = filteredCandidates.length;
+    const scheduledCount = filteredCandidates.filter(c => c.interview_status === 'scheduled').length;
+    const completedCount = filteredCandidates.filter(c => c.interview_status === 'completed').length;
+    const avgScore = filteredCandidates.length > 0
+        ? Math.round(filteredCandidates.reduce((sum, c) => sum + (getScore(c) || 0), 0) / filteredCandidates.length)
+        : 0;
+
     return (
         <DashboardLayout>
-            <DashboardHeader 
-                title={getPageTitle()}
-                description={`Total: ${filteredCandidates.length} candidates`}
-            />
+            <main className="flex-1 overflow-y-auto bg-[#f0f2f5] p-6">
+                {/* Page Header */}
+                <div className="mb-6">
+                    <h1 className="text-2xl font-bold text-[#344767] mb-1">{getPageTitle()}</h1>
+                    <p className="text-sm text-[#7b809a]">Manage and track all candidates in your recruitment pipeline</p>
+                </div>
 
-            <main className="flex-1 overflow-y-auto overflow-x-hidden bg-background relative min-h-0">
-                <PageBackground imagePath={backgroundImage} />
-                
-                <div className="page-container relative z-10 min-h-full">
-                    <div className="page-content">
-                        {tableFilter && (
-                            <div className="flex justify-end">
-                                <Button variant="outline" onClick={() => navigate('/candidates')} className="w-full sm:w-auto">
-                                    <ArrowLeft className="h-4 w-4 mr-2" />
-                                    View All Candidates
-                                </Button>
+                {tableFilter && (
+                    <div className="mb-4">
+                        <Button variant="outline" onClick={() => navigate('/candidates')} className="w-full sm:w-auto">
+                            <ArrowLeft className="h-4 w-4 mr-2" />
+                            View All Candidates
+                        </Button>
+                    </div>
+                )}
+
+                {/* Summary Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div className="bg-white rounded-xl shadow-md-lg p-4 border border-[#d2d6da]">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-xs font-semibold text-[#7b809a] uppercase mb-1">Total Candidates</p>
+                                <h3 className="text-2xl font-bold text-[#344767]">{totalCandidates}</h3>
                             </div>
-                        )}
+                            <div className="w-12 h-12 bg-gradient-to-br from-[#EC407A] to-[#D81B60] rounded-xl flex items-center justify-center shadow-lg">
+                                <Users className="h-6 w-6 text-white" />
+                            </div>
+                        </div>
+                    </div>
 
-                        <Card>
-                            <CardContent className="pt-6">
-                                <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                    <Input
-                                        placeholder="Search by name, email, or job title..."
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="pl-10"
-                                    />
-                                </div>
-                            </CardContent>
-                        </Card>
+                    <div className="bg-white rounded-xl shadow-md-lg p-4 border border-[#d2d6da]">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-xs font-semibold text-[#7b809a] uppercase mb-1">Scheduled</p>
+                                <h3 className="text-2xl font-bold text-[#344767]">{scheduledCount}</h3>
+                            </div>
+                            <div className="w-12 h-12 bg-gradient-to-br from-[#1A73E8] to-[#49a3f1] rounded-xl flex items-center justify-center shadow-lg">
+                                <Calendar className="h-6 w-6 text-white" />
+                            </div>
+                        </div>
+                    </div>
 
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Candidate List</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                {loading ? (
-                                    <div className="text-center py-8">
-                                        <div className="h-8 w-8 animate-spin text-primary mx-auto mb-4">...</div>
-                                        <p className="text-muted-foreground">Loading candidates...</p>
-                                    </div>
-                            ) : filteredCandidates.length === 0 ? (
-                                <div className="text-center py-8 text-muted-foreground">
-                                    No candidates found
-                                </div>
-                            ) : (
-                                <div className="overflow-x-auto">
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Name</TableHead>
-                                                <TableHead>Email</TableHead>
-                                                <TableHead>Phone</TableHead>
-                                                <TableHead>Job</TableHead>
-                                                <TableHead>Score</TableHead>
-                                                <TableHead>Actions</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
+                    <div className="bg-white rounded-xl shadow-md-lg p-4 border border-[#d2d6da]">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-xs font-semibold text-[#7b809a] uppercase mb-1">Completed</p>
+                                <h3 className="text-2xl font-bold text-[#344767]">{completedCount}</h3>
+                            </div>
+                            <div className="w-12 h-12 bg-gradient-to-br from-[#4CAF50] to-[#66BB6A] rounded-xl flex items-center justify-center shadow-lg">
+                                <CheckCircle2 className="h-6 w-6 text-white" />
+                            </div>
+                        </div>
+                    </div>
 
-                                        <TableBody>
-                                            {filteredCandidates.map((candidate) => (
-                                                <TableRow key={candidate.id}>
-                                                    <TableCell className="font-medium">
-                                                        <span className="text-sm">{candidate.name || candidate.full_name || candidate.email}</span>
-                                                    </TableCell>
-
-                                                    <TableCell>
-                                                        <a href={`mailto:${candidate.email}`} className="hover:text-primary text-sm font-medium">
-                                                            {candidate.email}
-                                                        </a>
-                                                    </TableCell>
-
-                                                    <TableCell>
-                                                        <span className="text-sm font-medium">{candidate.phone || "N/A"}</span>
-                                                    </TableCell>
-
-                                                    <TableCell>
-                                                        <span className="text-sm font-medium">{candidate.jobs?.title || "N/A"}</span>
-                                                    </TableCell>
-
-                                                    <TableCell>
-                                                        {getScore(candidate) !== null ? (
-                                                            <Badge variant="secondary" className="font-semibold">{getScore(candidate)}%</Badge>
-                                                        ) : (
-                                                            <span className="text-sm text-muted-foreground">N/A</span>
-                                                        )}
-                                                    </TableCell>
-
-                                                    <TableCell>
-                                                        <div className="flex items-center gap-2">
-                                                            <Button
-                                                                variant="outline"
-                                                                size="sm"
-                                                                onClick={() => {
-                                                                    setDetailCandidate(candidate);
-                                                                    setDetailModalOpen(true);
-                                                                }}
-                                                            >
-                                                                View Details
-                                                            </Button>
-                                                            <DropdownMenu>
-                                                                <DropdownMenuTrigger asChild>
-                                                                    <Button variant="ghost" size="icon">
-                                                                        <MoreVertical className="h-4 w-4" />
-                                                                    </Button>
-                                                                </DropdownMenuTrigger>
-                                                                <DropdownMenuContent align="end" className="w-64">
-                                                                    <DropdownMenuLabel>Manage Candidate</DropdownMenuLabel>
-                                                                    <DropdownMenuItem onClick={() => navigate(`/candidates/${candidate.id}`)}>
-                                                                        <Eye className="mr-2 h-4 w-4" />
-                                                                        View Full Details
-                                                                    </DropdownMenuItem>
-                                                                    {candidate.cv_file_url ? (
-                                                                        <DropdownMenuItem onClick={() => setCvViewerCandidate(candidate)}>
-                                                                            <FileText className="mr-2 h-4 w-4" />
-                                                                            View CV
-                                                                        </DropdownMenuItem>
-                                                                    ) : (
-                                                                        <DropdownMenuItem disabled>
-                                                                            <FileText className="mr-2 h-4 w-4" />
-                                                                            No CV Uploaded
-                                                                        </DropdownMenuItem>
-                                                                    )}
-                                                                    <DropdownMenuSeparator />
-                                                                    <DropdownMenuItem onClick={() => setEditCandidate(candidate)}>
-                                                                        <PenSquare className="mr-2 h-4 w-4" />
-                                                                        Edit Candidate
-                                                                    </DropdownMenuItem>
-                                                                    <DropdownMenuItem
-                                                                        className="text-destructive focus:text-destructive"
-                                                                        onClick={() => setDeleteCandidate(candidate)}
-                                                                    >
-                                                                        <Trash2 className="mr-2 h-4 w-4" />
-                                                                        Delete Candidate
-                                                                    </DropdownMenuItem>
-                                                                </DropdownMenuContent>
-                                                            </DropdownMenu>
-                                                        </div>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </div>
-                            )}
-                            </CardContent>
-                        </Card>
+                    <div className="bg-white rounded-xl shadow-md-lg p-4 border border-[#d2d6da]">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-xs font-semibold text-[#7b809a] uppercase mb-1">Avg Score</p>
+                                <h3 className="text-2xl font-bold text-[#344767]">{avgScore}%</h3>
+                            </div>
+                            <div className="w-12 h-12 bg-gradient-to-br from-[#fb8c00] to-[#ffa726] rounded-xl flex items-center justify-center shadow-lg">
+                                <Star className="h-6 w-6 text-white" />
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+                {/* Filters */}
+                <div className="bg-white rounded-xl shadow-md-lg p-4 mb-6 border border-[#d2d6da]">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#7b809a]" />
+                            <MDInput
+                                placeholder="Search by name, email, or job title..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-10"
+                            />
+                        </div>
+
+                        <Select value={statusFilter} onValueChange={setStatusFilter}>
+                            <SelectTrigger className="border-[#d2d6da] focus:border-[#e91e63] focus:ring-[#e91e63]">
+                                <SelectValue placeholder="Filter by Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Statuses</SelectItem>
+                                <SelectItem value="pending">Pending</SelectItem>
+                                <SelectItem value="scheduled">Scheduled</SelectItem>
+                                <SelectItem value="completed">Completed</SelectItem>
+                                <SelectItem value="passed">Passed</SelectItem>
+                                <SelectItem value="rejected">Rejected</SelectItem>
+                            </SelectContent>
+                        </Select>
+
+                        <Select value={scoreFilter} onValueChange={setScoreFilter}>
+                            <SelectTrigger className="border-[#d2d6da] focus:border-[#e91e63] focus:ring-[#e91e63]">
+                                <SelectValue placeholder="Filter by Score" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Scores</SelectItem>
+                                <SelectItem value="80">80% and above</SelectItem>
+                                <SelectItem value="60">60% and above</SelectItem>
+                                <SelectItem value="40">40% and above</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+
+                {/* Candidates Table */}
+                {loading ? (
+                    <div className="bg-white rounded-xl shadow-md-lg p-12 text-center border border-[#d2d6da]">
+                        <Loader2 className="h-8 w-8 animate-spin text-[#e91e63] mx-auto mb-4" />
+                        <p className="text-[#7b809a]">Loading candidates...</p>
+                    </div>
+                ) : filteredCandidates.length === 0 ? (
+                    <div className="bg-white rounded-xl shadow-md-lg p-12 text-center border border-[#d2d6da]">
+                        <Users className="h-12 w-12 text-[#7b809a] mx-auto mb-4 opacity-50" />
+                        <p className="text-[#7b809a]">No candidates found</p>
+                    </div>
+                ) : (
+                    <MDTable
+                        title="Candidates List"
+                        headerActions={
+                            <Badge className="bg-gradient-to-br from-[#EC407A] to-[#D81B60] text-white border-0 shadow-pink">
+                                {filteredCandidates.length} Total
+                            </Badge>
+                        }
+                    >
+                        <TableHeader>
+                            <TableRow className="bg-gradient-to-r from-[#EC407A] to-[#D81B60] hover:from-[#EC407A] hover:to-[#D81B60]">
+                                <TableHead className="text-white font-bold text-xs uppercase">Candidate</TableHead>
+                                <TableHead className="text-white font-bold text-xs uppercase">Contact</TableHead>
+                                <TableHead className="text-white font-bold text-xs uppercase">Job</TableHead>
+                                <TableHead className="text-white font-bold text-xs uppercase">Score</TableHead>
+                                <TableHead className="text-white font-bold text-xs uppercase">Status</TableHead>
+                                <TableHead className="text-white font-bold text-xs uppercase">Date</TableHead>
+                                <TableHead className="text-white font-bold text-xs uppercase">Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {filteredCandidates.map((candidate) => (
+                                <TableRow key={candidate.id} className="border-b border-[#d2d6da] hover:bg-[#f0f2f5]">
+                                    <TableCell>
+                                        <div className="flex items-center gap-3">
+                                            <Avatar className="h-10 w-10 flex-shrink-0 border-2 border-[#e91e63]">
+                                                <AvatarFallback className="bg-gradient-to-br from-[#EC407A] to-[#D81B60] text-white font-semibold">
+                                                    {getInitials(candidate.name || candidate.full_name || candidate.email || '')}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            <div className="min-w-0">
+                                                <p className="font-semibold text-[#344767] truncate">{candidate.name || candidate.full_name || candidate.email}</p>
+                                            </div>
+                                        </div>
+                                    </TableCell>
+
+                                    <TableCell>
+                                        <div className="space-y-1">
+                                            <div className="flex items-center gap-2 text-sm">
+                                                <Mail className="h-3.5 w-3.5 text-[#7b809a] flex-shrink-0" />
+                                                <a href={`mailto:${candidate.email}`} className="hover:text-[#e91e63] truncate text-[#344767]">
+                                                    {candidate.email}
+                                                </a>
+                                            </div>
+                                            {candidate.phone && (
+                                                <div className="flex items-center gap-2 text-sm text-[#7b809a]">
+                                                    <Phone className="h-3.5 w-3.5 flex-shrink-0" />
+                                                    <span>{candidate.phone}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </TableCell>
+
+                                    <TableCell>
+                                        {candidate.jobs?.title ? (
+                                            <div className="flex items-center gap-2 text-sm">
+                                                <Briefcase className="h-3.5 w-3.5 text-[#7b809a] flex-shrink-0" />
+                                                <span className="truncate text-[#344767]">{candidate.jobs.title}</span>
+                                            </div>
+                                        ) : (
+                                            <span className="text-xs text-[#7b809a]">-</span>
+                                        )}
+                                    </TableCell>
+
+                                    <TableCell>
+                                        {getScore(candidate) !== null ? (
+                                            <div className="flex items-center gap-2">
+                                                <Star className="h-4 w-4 fill-[#fb8c00] text-[#fb8c00]" />
+                                                <span className={`font-bold text-lg ${getScoreColor(getScore(candidate))}`}>
+                                                    {getScore(candidate)}%
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            <span className="text-xs text-[#7b809a]">-</span>
+                                        )}
+                                    </TableCell>
+
+                                    <TableCell>
+                                        {getInterviewStatusBadge(candidate.interview_status || candidate.status)}
+                                    </TableCell>
+
+                                    <TableCell>
+                                        {candidate.created_at ? (
+                                            <div className="flex items-center gap-2 text-sm text-[#7b809a]">
+                                                <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
+                                                <span>{new Date(candidate.created_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</span>
+                                            </div>
+                                        ) : (
+                                            <span className="text-xs text-[#7b809a]">-</span>
+                                        )}
+                                    </TableCell>
+
+                                    <TableCell>
+                                        <div className="flex items-center gap-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => {
+                                                    setDetailCandidate(candidate);
+                                                    setDetailModalOpen(true);
+                                                }}
+                                                className="gap-2 border-[#d2d6da] hover:bg-[#e91e63] hover:text-white hover:border-[#e91e63]"
+                                            >
+                                                <Eye className="h-4 w-4" />
+                                                View
+                                            </Button>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" size="icon" className="hover:bg-[#f0f2f5]">
+                                                        <MoreVertical className="h-4 w-4 text-[#7b809a]" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end" className="w-48">
+                                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                    {candidate.cv_file_url && (
+                                                        <DropdownMenuItem onClick={() => setCvViewerCandidate(candidate)}>
+                                                            <FileText className="mr-2 h-4 w-4" />
+                                                            View CV
+                                                        </DropdownMenuItem>
+                                                    )}
+                                                    <DropdownMenuItem onClick={() => setEditCandidate(candidate)}>
+                                                        <PenSquare className="mr-2 h-4 w-4" />
+                                                        Edit
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem
+                                                        className="text-destructive focus:text-destructive"
+                                                        onClick={() => setDeleteCandidate(candidate)}
+                                                    >
+                                                        <Trash2 className="mr-2 h-4 w-4" />
+                                                        Delete
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </MDTable>
+                )}
             </main>
 
             {selectedCandidate && (

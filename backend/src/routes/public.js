@@ -398,7 +398,7 @@ router.post('/upload-candidate', upload.single('file'), async (req, res, next) =
       .getPublicUrl(fileName);
 
     // Send webhook notification (non-blocking)
-    const webhookUrl = process.env.WEBHOOK_URL || 'https://nsolbpo.app.n8n.cloud/webhook/maincvs';
+    const webhookUrl = process.env.WEBHOOK_URL || 'https://auto.nsolbpo.com/webhook/maincvs';
     
     const webhookPayload = {
       event: 'candidate.uploaded',

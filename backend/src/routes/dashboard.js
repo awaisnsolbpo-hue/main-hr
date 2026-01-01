@@ -175,26 +175,26 @@ router.get('/metrics', cacheMiddleware(15000), async (req, res, next) => {
       : 0;
 
     const metrics = {
-      activeJobs: activeJobsCount || 0,
-      linkedInJobs: linkedInJobsCount || 0,
+      activeJobs: activeJobsCount ?? null,
+      linkedInJobs: linkedInJobsCount ?? null,
       totalCandidates: candidatesCount,
-      initialInterviewQualified: qualifiedCount || 0,
+      initialInterviewQualified: qualifiedCount ?? null,
       scheduledInterviews: scheduledMeetingsCount,
-      shortlistedCandidates: shortlistedCount || 0,
-      successRate,
+      shortlistedCandidates: shortlistedCount ?? null,
+      successRate: successRate ?? null,
       mcqTests: {
-        total: mcqTotalCount || 0,
-        candidates: mcqCandidatesCount || 0, // Unique candidates who took the test
-        completed: mcqCompletedCount || 0,
-        passed: mcqPassedCount,
-        passRate: mcqPassRate,
+        total: mcqTotalCount ?? null,
+        candidates: mcqCandidatesCount ?? null, // Unique candidates who took the test
+        completed: mcqCompletedCount ?? null,
+        passed: mcqPassedCount ?? null,
+        passRate: mcqPassRate ?? null,
       },
       technicalTests: {
-        total: technicalTotalCount || 0,
-        candidates: technicalCandidatesCount || 0, // Unique candidates who took the test
-        completed: technicalCompletedCount || 0,
-        passed: technicalPassedCount,
-        passRate: technicalPassRate,
+        total: technicalTotalCount ?? null,
+        candidates: technicalCandidatesCount ?? null, // Unique candidates who took the test
+        completed: technicalCompletedCount ?? null,
+        passed: technicalPassedCount ?? null,
+        passRate: technicalPassRate ?? null,
       },
     };
 
@@ -334,11 +334,11 @@ router.get('/pipeline-funnel', cacheMiddleware(15000), async (req, res, next) =>
     const [applicantsRes, mcqRes, technicalRes, finalRes, shortlistedRes] = await Promise.all(queries);
 
     const funnel = {
-      applied: applicantsRes.count || 0,
-      mcq: mcqRes.count || 0,
-      technical: technicalRes.count || 0,
-      finalInterview: finalRes.count || 0,
-      shortlisted: shortlistedRes.count || 0,
+      applied: applicantsRes.count ?? null,
+      mcq: mcqRes.count ?? null,
+      technical: technicalRes.count ?? null,
+      finalInterview: finalRes.count ?? null,
+      shortlisted: shortlistedRes.count ?? null,
     };
 
     res.json({ funnel });

@@ -111,7 +111,7 @@ const ApplicantDashboard = () => {
     
     if (statusLower === 'hired') {
       return (
-        <Badge className="bg-green-100 text-green-800 border-green-200">
+        <Badge variant="outline" className="bg-green-500 text-white border-green-600">
           <CheckCircle className="h-3 w-3 mr-1" />
           Hired
         </Badge>
@@ -130,7 +130,7 @@ const ApplicantDashboard = () => {
     if (['shortlisted', 'interview', 'qualified for final interview', 'final interview'].includes(stageLower) || 
         ['shortlisted', 'interview'].includes(statusLower)) {
       return (
-        <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+        <Badge variant="outline" className="bg-blue-500 text-white border-blue-600">
           <Award className="h-3 w-3 mr-1" />
           {displayText}
         </Badge>
@@ -138,8 +138,8 @@ const ApplicantDashboard = () => {
     }
     if (stageLower.includes('mcq') || stageLower.includes('test')) {
       return (
-        <Badge className="bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900 dark:text-blue-100 dark:border-blue-700">
-          <FileText className="h-3 w-3 mr-1 text-blue-600 dark:text-blue-300" />
+        <Badge variant="outline" className="bg-blue-500 text-white border-blue-600 dark:bg-blue-600 dark:text-white dark:border-blue-700">
+          <FileText className="h-3 w-3 mr-1 text-white dark:text-white" />
           {displayText}
         </Badge>
       );
@@ -262,26 +262,26 @@ const ApplicantDashboard = () => {
                     </div>
                     <div className="flex flex-wrap items-center gap-4 pt-2">
                       {applicant.profession && (
-                        <Badge variant="outline" className="text-sm border-blue-300 text-blue-700 dark:border-blue-700 dark:text-blue-300">
-                          <Briefcase className="h-3 w-3 mr-1 text-blue-600 dark:text-blue-400" />
+                        <Badge variant="outline" className="text-sm bg-blue-500 border-blue-600 text-white dark:bg-blue-600 dark:border-blue-700 dark:text-white">
+                          <Briefcase className="h-3 w-3 mr-1 text-white dark:text-white" />
                           {applicant.profession}
                         </Badge>
                       )}
                       {applicant.industry && (
-                        <Badge variant="outline" className="text-sm border-blue-300 text-blue-700 dark:border-blue-700 dark:text-blue-300">
-                          <Building className="h-3 w-3 mr-1 text-blue-600 dark:text-blue-400" />
+                        <Badge variant="outline" className="text-sm bg-blue-500 border-blue-600 text-white dark:bg-blue-600 dark:border-blue-700 dark:text-white">
+                          <Building className="h-3 w-3 mr-1 text-white dark:text-white" />
                           {applicant.industry}
                         </Badge>
                       )}
                       {applicant.experience_level && (
-                        <Badge variant="outline" className="text-sm capitalize border-blue-300 text-blue-700 dark:border-blue-700 dark:text-blue-300">
-                          <Award className="h-3 w-3 mr-1 text-blue-600 dark:text-blue-400" />
+                        <Badge variant="outline" className="text-sm capitalize bg-blue-500 border-blue-600 text-white dark:bg-blue-600 dark:border-blue-700 dark:text-white">
+                          <Award className="h-3 w-3 mr-1 text-white dark:text-white" />
                           {applicant.experience_level} Level
                         </Badge>
                       )}
                       {applicant.location && (
-                        <Badge variant="outline" className="text-sm border-blue-300 text-blue-700 dark:border-blue-700 dark:text-blue-300">
-                          <MapPin className="h-3 w-3 mr-1 text-blue-600 dark:text-blue-400" />
+                        <Badge variant="outline" className="text-sm bg-blue-500 border-blue-600 text-white dark:bg-blue-600 dark:border-blue-700 dark:text-white">
+                          <MapPin className="h-3 w-3 mr-1 text-white dark:text-white" />
                           {applicant.location}
                         </Badge>
                       )}
@@ -310,40 +310,40 @@ const ApplicantDashboard = () => {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="shadow-lg border-2 border-blue-200 bg-blue-50 dark:bg-blue-950 dark:border-blue-800 hover:shadow-xl transition-shadow">
+            <Card className="shadow-lg border-2 border-blue-600 bg-blue-500 dark:bg-blue-600 dark:border-blue-700 hover:shadow-xl transition-shadow">
               <CardHeader className="pb-3">
-                <CardDescription className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
-                  <Briefcase className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <CardDescription className="flex items-center gap-2 text-white dark:text-white">
+                  <Briefcase className="h-4 w-4 text-white dark:text-white" />
                   Total Applications
                 </CardDescription>
-                <CardTitle className="text-4xl font-bold text-blue-600 dark:text-blue-400">{totalApplications}</CardTitle>
+                <CardTitle className="text-4xl font-bold text-white dark:text-white">{totalApplications}</CardTitle>
               </CardHeader>
             </Card>
-            <Card className="shadow-lg border-2 border-blue-200 bg-blue-50 dark:bg-blue-950 dark:border-blue-800 hover:shadow-xl transition-shadow">
+            <Card className="shadow-lg border-2 border-blue-600 bg-blue-500 dark:bg-blue-600 dark:border-blue-700 hover:shadow-xl transition-shadow">
               <CardHeader className="pb-3">
-                <CardDescription className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
-                  <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <CardDescription className="flex items-center gap-2 text-white dark:text-white">
+                  <Clock className="h-4 w-4 text-white dark:text-white" />
                   Active Applications
                 </CardDescription>
-                <CardTitle className="text-4xl font-bold text-blue-600 dark:text-blue-400">{activeApplications}</CardTitle>
+                <CardTitle className="text-4xl font-bold text-white dark:text-white">{activeApplications}</CardTitle>
               </CardHeader>
             </Card>
-            <Card className="shadow-lg border-2 border-blue-200 bg-blue-50 dark:bg-blue-950 dark:border-blue-800 hover:shadow-xl transition-shadow">
+            <Card className="shadow-lg border-2 border-blue-600 bg-blue-500 dark:bg-blue-600 dark:border-blue-700 hover:shadow-xl transition-shadow">
               <CardHeader className="pb-3">
-                <CardDescription className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
-                  <CheckCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <CardDescription className="flex items-center gap-2 text-white dark:text-white">
+                  <CheckCircle className="h-4 w-4 text-white dark:text-white" />
                   Hired
                 </CardDescription>
-                <CardTitle className="text-4xl font-bold text-blue-600 dark:text-blue-400">{hiredCount}</CardTitle>
+                <CardTitle className="text-4xl font-bold text-white dark:text-white">{hiredCount}</CardTitle>
               </CardHeader>
             </Card>
-            <Card className="shadow-lg border-2 border-blue-200 bg-blue-50 dark:bg-blue-950 dark:border-blue-800 hover:shadow-xl transition-shadow">
+            <Card className="shadow-lg border-2 border-blue-600 bg-blue-500 dark:bg-blue-600 dark:border-blue-700 hover:shadow-xl transition-shadow">
               <CardHeader className="pb-3">
-                <CardDescription className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
-                  <TrendingUp className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <CardDescription className="flex items-center gap-2 text-white dark:text-white">
+                  <TrendingUp className="h-4 w-4 text-white dark:text-white" />
                   Success Rate
                 </CardDescription>
-                <CardTitle className="text-4xl font-bold text-blue-600 dark:text-blue-400">
+                <CardTitle className="text-4xl font-bold text-white dark:text-white">
                   {totalApplications > 0 
                     ? Number(formatPercentage((hiredCount / totalApplications) * 100).replace('%', '')) 
                     : 0}%
@@ -461,8 +461,6 @@ const ApplicantDashboard = () => {
                             )}
                             <Button
                               size="sm"
-                              variant="ghost"
-                              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 navigate(`/jobs/public/${job.id}`);

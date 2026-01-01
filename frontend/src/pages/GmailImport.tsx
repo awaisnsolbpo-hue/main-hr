@@ -301,7 +301,7 @@ const GmailImport = () => {
                         Search your Gmail for candidate applications and import them automatically
                     </p>
                     {jobId && (
-                        <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 rounded-lg text-sm">
+                        <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 bg-blue-500 dark:bg-blue-600 text-white dark:text-white rounded-lg text-sm">
                             <CheckCircle2 className="h-4 w-4" />
                             Candidates will be imported to the selected job
                         </div>
@@ -457,7 +457,7 @@ const GmailImport = () => {
 
                                                     <div className="flex flex-col items-end gap-2 flex-shrink-0">
                                                         {email.hasResume && (
-                                                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-medium">
+                                                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-500 text-white text-xs font-medium">
                                                                 <FileText className="h-3 w-3" />
                                                                 Resume
                                                             </span>

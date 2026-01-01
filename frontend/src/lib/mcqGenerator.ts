@@ -1,3 +1,5 @@
+import { env } from '@/config/env';
+
 export interface MCQQuestion {
   id: string;
   question: string;
@@ -23,7 +25,7 @@ interface JobData {
 export async function generateMCQQuestions(
   jobData: JobData
 ): Promise<MCQQuestion[]> {
-  const apiBaseUrl = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:3001/api';
+  const apiBaseUrl = env.VITE_API_BASE_URL;
   
   try {
     const response = await fetch(`${apiBaseUrl}/public/mcq-tests/generate`, {

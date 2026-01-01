@@ -16,6 +16,7 @@ const InterviewRoom = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const email = searchParams.get("email");
+  const candidateId = searchParams.get("candidate_id");
   const jobId = searchParams.get("job_id");
 
   // Get Supabase credentials for sync updates on page close
@@ -238,43 +239,38 @@ const InterviewRoom = () => {
   }, []);
 
   useEffect(() => {
-    if (!email) {
+    if (!email || !candidateId) {
       navigate("/interview-landing");
       return;
     }
 
     const fetchCandidate = async () => {
       try {
-        // Build query - if job_id is provided, filter by both email and job_id
-        let query = supabase
-          .from("qualified_for_final_interview" as any)
-          .select('id, name, email, client_custom_questions, ai_generated_questions, interview_status, created_at, job_id')
-          .eq("email", email);
+        // Use the API endpoint that correctly queries by candidate_id
+        const { interviews: data } = await publicApi.getQualifiedInterviewCandidate(email, candidateId);
 
-        // If job_id is provided, filter by specific job
-        if (jobId) {
-          query = query.eq("job_id", jobId);
-        }
-
-        const { data, error } = await query.order('created_at', { ascending: true });
-
-        if (error) {
-          console.error("Error fetching candidate:", error);
+        if (!data || data.length === 0) {
           toast({
-            title: "Error",
-            description: "Failed to load interview details.",
+            title: "Not Found",
+            description: "No interview scheduled for this email and candidate ID.",
             variant: "destructive",
           });
           navigate("/interview-landing");
           return;
         }
 
-        if (!data || data.length === 0) {
+        // Filter by job_id if provided
+        let filteredData = data;
+        if (jobId) {
+          filteredData = data.filter((record: any) => record.job_id === jobId);
+        }
+
+        if (filteredData.length === 0) {
           toast({
             title: "Not Found",
             description: jobId 
-              ? "No interview scheduled for this email and job." 
-              : "No interview scheduled for this email.",
+              ? "No interview scheduled for this email, candidate ID, and job." 
+              : "No interview scheduled for this email and candidate ID.",
             variant: "destructive",
           });
           navigate("/interview-landing");
@@ -282,25 +278,32 @@ const InterviewRoom = () => {
         }
 
         // Log all matching records for debugging
-        console.log(`Found ${data.length} interview record(s)${jobId ? ` for job_id: ${jobId}` : ''}`);
+        console.log(`Found ${filteredData.length} interview record(s)${jobId ? ` for job_id: ${jobId}` : ''}`);
 
         // Find the first interview that is "Scheduled" (not completed)
-        let candidateData = data.find((record: any) => record.interview_status === "Scheduled");
+        // Handle both "Scheduled" and "scheduled" (case-insensitive)
+        let candidateData = filteredData.find((record: any) => {
+          const status = record.interview_status?.trim() || "";
+          return status.toLowerCase() === "scheduled" || status === "Scheduled";
+        });
 
         // If no scheduled interview found, check if all are completed
         if (!candidateData) {
-          const allCompleted = data.every((record: any) => record.interview_status === "Completed");
+          const allCompleted = filteredData.every((record: any) => {
+            const status = record.interview_status?.trim()?.toLowerCase() || "";
+            return status === "completed" || status === "finished";
+          });
 
           if (allCompleted) {
             toast({
               title: "All Interviews Completed",
-              description: "All interviews for this email have been completed.",
+              description: "All interviews for this candidate have been completed.",
               variant: "destructive",
             });
           } else {
             toast({
               title: "Interview Not Available",
-              description: "No scheduled interview found for this email.",
+              description: "No scheduled interview found for this candidate.",
               variant: "destructive",
             });
           }
@@ -311,8 +314,13 @@ const InterviewRoom = () => {
         // Set candidate data
         const candidateDataTyped = candidateData as any;
         setCandidate(candidateDataTyped);
-      } catch (err) {
-        console.error("Unexpected error:", err);
+      } catch (err: any) {
+        console.error("Error fetching candidate:", err);
+        toast({
+          title: "Error",
+          description: err.message || "Failed to load interview details.",
+          variant: "destructive",
+        });
         navigate("/interview-landing");
       } finally {
         setLoading(false);
@@ -320,7 +328,7 @@ const InterviewRoom = () => {
     };
 
     fetchCandidate();
-  }, [email, jobId, navigate, toast]);
+  }, [email, candidateId, jobId, navigate, toast]);
 
   // Recording duration timer
   useEffect(() => {
@@ -648,11 +656,13 @@ const InterviewRoom = () => {
   const startInterview = async () => {
     if (!candidate) return;
 
-    // Prevent double initialization
-    if (vapiInitialized || interviewActive || connecting) {
-      console.warn("Interview already started or Vapi already initialized");
+    // Prevent double initialization - only check if actively connecting or in interview
+    if (interviewActive || connecting) {
+      console.warn("Interview already started or currently connecting");
       return;
     }
+
+    console.log("🎬 Starting interview...");
 
     // Set connecting state
     setConnecting(true);
@@ -791,9 +801,10 @@ const InterviewRoom = () => {
           type: error?.type,
           stack: error?.stack,
         });
-        
-        // Handle specific error cases
-        if (error?.error?.message === 'Meeting has ended' ||
+
+        // Handle meeting ended / ejection errors
+        if (error?.error?.type === 'ejected' ||
+          error?.error?.message === 'Meeting has ended' ||
           error?.message === 'Meeting has ended' ||
           error?.errorMsg === 'Meeting has ended') {
           console.log('📞 Meeting ended - cleaning up');
@@ -1040,22 +1051,31 @@ const InterviewRoom = () => {
       // Start the call with media stream
       const vapiConfig: any = {
         name: "AI Interview Assistant",
-        // CRITICAL: Make AI speak first
+      
+        // Assistant speaks first
         firstMessageMode: "assistant-speaks-first",
         firstMessage: firstMessage,
-        // Configure speaking behavior
+      
+        // Max interview duration
+        maxDurationSeconds: 1000,
+      
+        // Speaking behavior (Vapi-side, valid)
         startSpeakingPlan: {
           waitSeconds: 0.5,
           smartEndpointingEnabled: true,
         },
+      
+        // OpenAI transcriber (ONLY supported fields)
         transcriber: {
-          provider: "deepgram",
-          model: "nova-2-general",
-          language: "en-US",
-          smartFormat: true,
-          endpointing: 300, // Reduced for better responsiveness
+          provider: "openai",
+          model: "gpt-4o-mini-transcribe",
+          language: "en",
         },
-        silenceTimeoutSeconds: 60,
+      
+        silenceTimeoutSeconds: 40,
+        responseDelaySeconds: 0.5,
+      
+        // OpenAI chat model (VALID model name)
         model: {
           provider: "openai",
           model: "gpt-4o-mini",
@@ -1063,53 +1083,57 @@ const InterviewRoom = () => {
             {
               role: "system",
               content: `You are an AI Interview Assistant conducting a professional voice-based interview.
-
-IMPORTANT: You MUST use ONLY the questions provided below from the database. Do not generate any new questions.
-
-=== CANDIDATE INFORMATION ===
-- Name: ${sessionContext.candidate_name}
-- Email: ${sessionContext.candidate_email}
-
-=== INTERVIEW QUESTIONS ===
-
-${clientQuestions ? `CLIENT QUESTIONS:
-${formattedClientQuestions}
-
-` : ''}${aiGeneratedQuestions ? `AI GENERATED QUESTIONS:
-${formattedAIGeneratedQuestions}
-
-` : ''}=== INTERVIEW PROTOCOL ===
-
-1. GREETING (START IMMEDIATELY):
-   - As soon as the call starts, greet the candidate: "${firstMessage}"
-   - You MUST speak first. Do NOT wait for the candidate to speak.
-   - Speak clearly and at a normal pace.
-
-2. QUESTION SEQUENCE:
-   ${clientQuestions ? `- First, ask ALL questions from "CLIENT QUESTIONS" one by one in order.` : ""}
-   ${aiGeneratedQuestions ? `- Then, ask ALL questions from "AI GENERATED QUESTIONS" one by one in order.` : ""}
-   - Ask ONE question at a time and wait for the candidate's complete answer.
-   - After each answer, acknowledge briefly with: "Thank you" or "I understand" or "Noted."
-   - Then proceed to the next question.
-
-3. STRICT RULES:
-   - DO NOT create, add, or improvise any questions beyond what is provided above.
-   - DO NOT provide feedback, evaluation, or opinions on answers.
-   - DO NOT engage in casual conversation beyond the interview structure.
-   - If the candidate asks unrelated questions, politely redirect: "Let's focus on the interview questions."
-   - Keep your responses brief and professional.
-
-4. CLOSING:
-   - After all questions are complete, conclude with: "Thank you ${sessionContext.candidate_name}. This concludes your interview. Have a good day."`
+      
+      IMPORTANT: You MUST use ONLY the questions provided below from the database. Do not generate any new questions.
+      
+      === CANDIDATE INFORMATION ===
+      - Name: ${sessionContext.candidate_name}
+      - Email: ${sessionContext.candidate_email}
+      
+      === INTERVIEW QUESTIONS ===
+      
+      ${clientQuestions ? `CLIENT QUESTIONS:
+      ${formattedClientQuestions}
+      
+      ` : ''}${aiGeneratedQuestions ? `AI GENERATED QUESTIONS:
+      ${formattedAIGeneratedQuestions}
+      
+      ` : ''}=== INTERVIEW PROTOCOL ===
+      
+      1. GREETING (START IMMEDIATELY):
+         - As soon as the call starts, greet the candidate: "${firstMessage}"
+         - You MUST speak first. Do NOT wait for the candidate to speak.
+         - Speak clearly and at a normal pace.
+      
+      2. QUESTION SEQUENCE:
+         ${clientQuestions ? `- First, ask ALL questions from "CLIENT QUESTIONS" one by one in order.` : ""}
+         ${aiGeneratedQuestions ? `- Then, ask ALL questions from "AI GENERATED QUESTIONS" one by one in order.` : ""}
+         - Ask ONE question at a time and wait for the candidate's complete answer.
+         - After each answer, acknowledge briefly with: "Thank you" or "I understand" or "Noted."
+         - Then proceed to the next question.
+      
+      3. STRICT RULES:
+         - DO NOT create, add, or improvise any questions beyond what is provided above.
+         - DO NOT provide feedback, evaluation, or opinions on answers.
+         - DO NOT engage in casual conversation beyond the interview structure.
+         - If the candidate asks unrelated questions, politely redirect: "Let's focus on the interview questions."
+         - Keep your responses brief and professional.
+      
+      4. CLOSING:
+         - After all questions are complete, conclude with:
+           "Thank you ${sessionContext.candidate_name}. This concludes your interview. Have a good day."`
             }
           ]
         },
+      
+        // Voice output
         voice: {
-          provider: "playht",
-          voiceId: "jennifer",
+          provider: "vapi",
+          voiceId: "Hana",
           speed: 1.0,
         },
       };
+      
 
       // Ensure audio track is enabled before starting VAPI
       if (mediaStream) {
@@ -1706,8 +1730,8 @@ ${formattedAIGeneratedQuestions}
                       <div className="flex-shrink-0">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                           entry.speaker === 'AI' 
-                            ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400' 
-                            : 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400'
+                            ? 'bg-blue-500 dark:bg-blue-600 text-white dark:text-white' 
+                            : 'bg-green-500 dark:bg-green-600 text-white dark:text-white'
                         }`}>
                           {entry.speaker === 'AI' ? (
                             <Sparkles className="h-4 w-4" />
@@ -1745,8 +1769,8 @@ ${formattedAIGeneratedQuestions}
                       <div className="flex-shrink-0">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                           partialTranscript.speaker === 'AI' 
-                            ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400' 
-                            : 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400'
+                            ? 'bg-blue-500 dark:bg-blue-600 text-white dark:text-white' 
+                            : 'bg-green-500 dark:bg-green-600 text-white dark:text-white'
                         }`}>
                           {partialTranscript.speaker === 'AI' ? (
                             <Sparkles className="h-4 w-4" />
@@ -1848,9 +1872,9 @@ ${formattedAIGeneratedQuestions}
                   onClick={startInterview}
                   size="lg"
                   className="min-w-40"
-                  disabled={isUploading || vapiInitialized}
+                  disabled={isUploading || connecting}
                 >
-                  Start Interview
+                  {connecting ? "Connecting..." : "Start Interview"}
                 </Button>
               ) : (
                 <>

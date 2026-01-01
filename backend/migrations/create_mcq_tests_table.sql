@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS public.mcqs_test (
   duration_minutes INTEGER NULL,
   time_limit_minutes INTEGER NULL DEFAULT 30,
   ai_evaluation JSONB NULL,
-  passing_score NUMERIC NULL DEFAULT 60,
+  passing_score NUMERIC NULL DEFAULT 33.3,
   passed BOOLEAN NULL,
   review_notes TEXT NULL,
   created_at TIMESTAMP WITH TIME ZONE NULL DEFAULT NOW(),

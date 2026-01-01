@@ -221,7 +221,7 @@ const MCQRoom = () => {
         correct_answers: 0,
         started_at: new Date().toISOString(),
         time_limit_minutes: 15,
-        passing_score: 60,
+        passing_score: 33.3,
       };
       await publicApi.saveMCQTestResults(startData);
     } catch (error) {
@@ -382,8 +382,8 @@ const MCQRoom = () => {
         completed_at: new Date().toISOString(),
         duration_minutes: Math.floor(((15 * 60) - timeRemaining) / 60),
         time_limit_minutes: 15,
-        passing_score: 60,
-        passed: score >= 60,
+        passing_score: 33.3,
+        passed: correctAnswers >= 10 || score >= 33.3,
         review_notes: null,
       };
 
@@ -631,8 +631,8 @@ const MCQRoom = () => {
             <div className="flex items-center gap-4">
               <div className={`px-4 py-2 rounded-lg font-bold text-lg font-mono ${
                 timeRemaining < 300
-                  ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300"
-                  : "bg-primary/10 text-primary"
+                  ? "bg-red-500 text-white dark:bg-red-600 dark:text-white"
+                  : "bg-primary text-white"
               }`}>
                 <Clock className="h-4 w-4 inline mr-2" />
                 {formatTime(timeRemaining)}
@@ -799,7 +799,7 @@ const MCQRoom = () => {
                         idx === currentQuestionIndex
                           ? "bg-primary text-white ring-2 ring-primary/40"
                           : userAnswers[q.id]
-                          ? "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300"
+                          ? "bg-green-500 text-white dark:bg-green-600 dark:text-white"
                           : "bg-muted text-muted-foreground hover:bg-muted/80"
                       }`}
                     >
