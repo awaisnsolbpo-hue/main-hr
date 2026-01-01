@@ -13,6 +13,7 @@ export default defineConfig(({ mode }) => ({
             ".ts.net",  // Or even more permissive
         ],
     },
+
     plugins: [react()],
     resolve: {
         alias: {
@@ -25,6 +26,8 @@ export default defineConfig(({ mode }) => ({
     },
     build: {
         rollupOptions: {
+            outDir: '/var/www/hr-app/frontend/dist',
+            emptyOutDir: true,
             output: {
                 manualChunks: {
                     // Core React libraries
@@ -48,6 +51,8 @@ export default defineConfig(({ mode }) => ({
 
                     // Charts and visualization (if used)
                     'charts': [],
+
+                    
                 },
             },
         },

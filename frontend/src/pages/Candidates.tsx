@@ -57,6 +57,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
     AlertDialog,
@@ -117,8 +118,8 @@ interface Candidate {
     Score?: number; // Legacy field
     interview_date?: string; // Legacy field
     interview_result?: string; // Legacy field
-    source: 'candidates' | 'Shortlisted' | 'Final Interview';
-    stage_priority: number;
+    source?: 'candidates' | 'Shortlisted' | 'Final Interview' | string;
+    stage_priority?: number;
     Transcript?: string;
     'Recording URL'?: string;
     'Screen recording'?: string;
@@ -301,7 +302,7 @@ const Candidates = () => {
         const statusLower = status.toLowerCase();
 
         if (statusLower.includes("pending")) {
-            return <Badge className="bg-[#fb8c00]/10 text-[#fb8c00] border border-[#fb8c00]/20">Pending</Badge>;
+            return <Badge className="bg-[#4285F4]/10 text-[#4285F4] border border-[#4285F4]/20">Pending</Badge>;
         }
         if (statusLower.includes("scheduled")) {
             return <Badge className="bg-[#1A73E8]/10 text-[#1A73E8] border border-[#1A73E8]/20">Scheduled</Badge>;
@@ -318,19 +319,20 @@ const Candidates = () => {
 
     const getScoreColor = (score: number | null) => {
         if (!score) return "text-[#7b809a]";
-        if (score >= 80) return "text-[#4CAF50]";
-        if (score >= 60) return "text-[#fb8c00]";
-        return "text-[#F44335]";
+        if (score >= 80) return "text-[#34A853]";
+        if (score >= 60) return "text-[#4285F4]";
+        return "text-[#EA4335]";
     };
 
-    const getSourceBadge = (source: Candidate['source']) => {
-        const sourceConfig = {
-            'candidates': { variant: 'outline' as const, label: 'Candidate', color: 'bg-blue-500 text-white border-blue-600' },
-            'Shortlisted': { variant: 'default' as const, label: 'Shortlisted', color: 'bg-primary text-white dark:bg-primary dark:text-white' },
-            'Final Interview': { variant: 'secondary' as const, label: 'Final Interview', color: 'bg-green-500 text-white' }
+    const getSourceBadge = (source?: string) => {
+        const sourceConfig: Record<string, { variant: 'outline' | 'default' | 'secondary', label: string, color: string }> = {
+            'candidates': { variant: 'outline' as const, label: 'Candidate', color: 'bg-[#1A73E8] text-white border-[#1557B0]' },
+            'Shortlisted': { variant: 'default' as const, label: 'Shortlisted', color: 'bg-[#4285F4] text-white' },
+            'Final Interview': { variant: 'secondary' as const, label: 'Final Interview', color: 'bg-[#34A853] text-white' },
+            'manual_upload': { variant: 'outline' as const, label: 'Manual Upload', color: 'bg-[#5F6368] text-white border-[#5F6368]' }
         };
 
-        const config = sourceConfig[source] || { variant: 'outline' as const, label: source || 'Unknown', color: 'bg-gray-100 text-gray-800' };
+        const config = (source && sourceConfig[source]) || { variant: 'outline' as const, label: source || 'Unknown', color: 'bg-gray-100 text-gray-800' };
         return <Badge variant={config.variant} className={config.color}>{config.label}</Badge>;
     };
 
@@ -395,7 +397,7 @@ const Candidates = () => {
                     c.id === candidate.id
                         ? {
                             ...c,
-                            source: newSource as Candidate['source'],
+                            source: newSource,
                         }
                         : c
                 )
@@ -540,7 +542,7 @@ const Candidates = () => {
                                 <p className="text-xs font-semibold text-[#7b809a] uppercase mb-1">Total Candidates</p>
                                 <h3 className="text-2xl font-bold text-[#344767]">{totalCandidates}</h3>
                             </div>
-                            <div className="w-12 h-12 bg-gradient-to-br from-[#EC407A] to-[#D81B60] rounded-xl flex items-center justify-center shadow-lg">
+                            <div className="w-12 h-12 bg-gradient-to-br from-[#1A73E8] to-[#1557B0] rounded-xl flex items-center justify-center shadow-lg">
                                 <Users className="h-6 w-6 text-white" />
                             </div>
                         </div>
@@ -576,7 +578,7 @@ const Candidates = () => {
                                 <p className="text-xs font-semibold text-[#7b809a] uppercase mb-1">Avg Score</p>
                                 <h3 className="text-2xl font-bold text-[#344767]">{avgScore}%</h3>
                             </div>
-                            <div className="w-12 h-12 bg-gradient-to-br from-[#fb8c00] to-[#ffa726] rounded-xl flex items-center justify-center shadow-lg">
+                            <div className="w-12 h-12 bg-gradient-to-br from-[#4285F4] to-[#2A6BD3] rounded-xl flex items-center justify-center shadow-lg">
                                 <Star className="h-6 w-6 text-white" />
                             </div>
                         </div>
@@ -597,7 +599,7 @@ const Candidates = () => {
                         </div>
 
                         <Select value={statusFilter} onValueChange={setStatusFilter}>
-                            <SelectTrigger className="border-[#d2d6da] focus:border-[#e91e63] focus:ring-[#e91e63]">
+                            <SelectTrigger className="border-[#d2d6da] focus:border-[#1A73E8] focus:ring-[#1A73E8]">
                                 <SelectValue placeholder="Filter by Status" />
                             </SelectTrigger>
                             <SelectContent>
@@ -611,7 +613,7 @@ const Candidates = () => {
                         </Select>
 
                         <Select value={scoreFilter} onValueChange={setScoreFilter}>
-                            <SelectTrigger className="border-[#d2d6da] focus:border-[#e91e63] focus:ring-[#e91e63]">
+                            <SelectTrigger className="border-[#d2d6da] focus:border-[#1A73E8] focus:ring-[#1A73E8]">
                                 <SelectValue placeholder="Filter by Score" />
                             </SelectTrigger>
                             <SelectContent>
@@ -627,7 +629,7 @@ const Candidates = () => {
                 {/* Candidates Table */}
                 {loading ? (
                     <div className="bg-white rounded-xl shadow-md-lg p-12 text-center border border-[#d2d6da]">
-                        <Loader2 className="h-8 w-8 animate-spin text-[#e91e63] mx-auto mb-4" />
+                        <Loader2 className="h-8 w-8 animate-spin text-[#1A73E8] mx-auto mb-4" />
                         <p className="text-[#7b809a]">Loading candidates...</p>
                     </div>
                 ) : filteredCandidates.length === 0 ? (
@@ -639,13 +641,13 @@ const Candidates = () => {
                     <MDTable
                         title="Candidates List"
                         headerActions={
-                            <Badge className="bg-gradient-to-br from-[#EC407A] to-[#D81B60] text-white border-0 shadow-pink">
+                            <Badge className="bg-gradient-to-br from-[#1A73E8] to-[#1557B0] text-white border-0">
                                 {filteredCandidates.length} Total
                             </Badge>
                         }
                     >
                         <TableHeader>
-                            <TableRow className="bg-gradient-to-r from-[#EC407A] to-[#D81B60] hover:from-[#EC407A] hover:to-[#D81B60]">
+                            <TableRow className="bg-gradient-to-r from-[#1A73E8] to-[#1557B0] hover:from-[#1A73E8] hover:to-[#1557B0]">
                                 <TableHead className="text-white font-bold text-xs uppercase">Candidate</TableHead>
                                 <TableHead className="text-white font-bold text-xs uppercase">Contact</TableHead>
                                 <TableHead className="text-white font-bold text-xs uppercase">Job</TableHead>
@@ -660,8 +662,8 @@ const Candidates = () => {
                                 <TableRow key={candidate.id} className="border-b border-[#d2d6da] hover:bg-[#f0f2f5]">
                                     <TableCell>
                                         <div className="flex items-center gap-3">
-                                            <Avatar className="h-10 w-10 flex-shrink-0 border-2 border-[#e91e63]">
-                                                <AvatarFallback className="bg-gradient-to-br from-[#EC407A] to-[#D81B60] text-white font-semibold">
+                                            <Avatar className="h-10 w-10 flex-shrink-0 border-2 border-[#1A73E8]">
+                                                <AvatarFallback className="bg-gradient-to-br from-[#1A73E8] to-[#1557B0] text-white font-semibold">
                                                     {getInitials(candidate.name || candidate.full_name || candidate.email || '')}
                                                 </AvatarFallback>
                                             </Avatar>
@@ -675,7 +677,7 @@ const Candidates = () => {
                                         <div className="space-y-1">
                                             <div className="flex items-center gap-2 text-sm">
                                                 <Mail className="h-3.5 w-3.5 text-[#7b809a] flex-shrink-0" />
-                                                <a href={`mailto:${candidate.email}`} className="hover:text-[#e91e63] truncate text-[#344767]">
+                                                <a href={`mailto:${candidate.email}`} className="hover:text-[#1A73E8] truncate text-[#344767]">
                                                     {candidate.email}
                                                 </a>
                                             </div>
@@ -736,7 +738,7 @@ const Candidates = () => {
                                                     setDetailCandidate(candidate);
                                                     setDetailModalOpen(true);
                                                 }}
-                                                className="gap-2 border-[#d2d6da] hover:bg-[#e91e63] hover:text-white hover:border-[#e91e63]"
+                                                className="gap-2 border-[#d2d6da] hover:bg-[#1A73E8] hover:text-white hover:border-[#1A73E8]"
                                             >
                                                 <Eye className="h-4 w-4" />
                                                 View
